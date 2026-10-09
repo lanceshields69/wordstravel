@@ -1229,6 +1229,8 @@ body::-webkit-scrollbar {
   height: auto;
   max-height: calc(100dvh - 116px);
   transform: translateY(-50%);
+  overflow: hidden;
+  opacity: 0.8;
   border-color: rgba(38, 58, 64, 0.12);
   border-radius: 14px;
   background: #fffcf6;
