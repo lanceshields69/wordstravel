@@ -216,7 +216,7 @@ summary:focus-visible {
   color: var(--ink);
   border: 1px solid rgba(25, 49, 54, 0.2);
   box-shadow: 0 22px 45px rgba(0, 17, 21, 0.24);
-  border-radius: 3px;
+  border-radius: 14px;
   overflow: hidden;
 }
 .intro-card-main {
@@ -353,7 +353,7 @@ summary:focus-visible {
   display: flex;
   flex-direction: column;
   border: 1px solid rgba(38, 58, 64, 0.14);
-  border-radius: 3px;
+  border-radius: 14px;
   animation: story-enter 0.5s both;
 }
 @keyframes story-enter {
@@ -959,7 +959,7 @@ summary:focus-visible {
     left: 0;
     width: 100%;
     height: min(59dvh, 620px);
-    border-radius: 10px 10px 0 0;
+    border-radius: 14px 14px 0 0;
     animation: sheet-enter 0.4s both;
   }
   .story-panel.is-collapsed {
@@ -1230,7 +1230,7 @@ body::-webkit-scrollbar {
   max-height: calc(100dvh - 116px);
   transform: translateY(-50%);
   border-color: rgba(38, 58, 64, 0.12);
-  border-radius: 4px;
+  border-radius: 14px;
   background: #fffcf6;
   box-shadow: 0 24px 64px rgba(0, 22, 26, 0.25);
   animation: none;
@@ -1569,7 +1569,7 @@ body::-webkit-scrollbar {
     height: min(63dvh, 620px);
     max-height: calc(100dvh - 90px);
     transform: none;
-    border-radius: 10px 10px 0 0;
+    border-radius: 14px 14px 0 0;
   }
   .story-panel.is-collapsed {
     height: auto;
