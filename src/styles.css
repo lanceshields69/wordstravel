@@ -711,13 +711,17 @@ summary:focus-visible {
 .map-pin.is-active .pin-core {
   width: 17px;
   height: 17px;
-  box-shadow: 0 0 0 7px rgba(167, 101, 67, 0.29);
+  box-shadow:
+    0 0 0 9px rgba(167, 101, 67, 0.32),
+    0 0 0 18px rgba(167, 101, 67, 0.13);
 }
 .map-pin.is-regional .pin-core {
   box-shadow: 0 0 0 7px rgba(167, 101, 67, 0.17);
 }
 .map-pin.is-active.is-regional .pin-core {
-  box-shadow: 0 0 0 10px rgba(167, 101, 67, 0.19);
+  box-shadow:
+    0 0 0 11px rgba(167, 101, 67, 0.29),
+    0 0 0 20px rgba(167, 101, 67, 0.13);
 }
 .pin-word {
   background: rgba(24, 52, 56, 0.78);
