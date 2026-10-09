@@ -1,0 +1,228 @@
+import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  imageByWord,
+  introThumbnailUrl,
+  type IntroImage,
+  type Journey,
+} from "./content";
+
+type Props = {
+  journeys: Journey[];
+  active: boolean;
+  selectedWord: string | null;
+  onOpen: (id: string) => void;
+  onCredit: (image: IntroImage) => void;
+};
+
+export default function WordCarousel({
+  journeys,
+  active,
+  selectedWord,
+  onOpen,
+  onCredit,
+}: Props) {
+  const shelf = useRef<HTMLDivElement>(null);
+  const pausedByGesture = useRef(false);
+  const [paused, setPaused] = useState(false);
+  const [index, setIndex] = useState(0);
+  const [mobile, setMobile] = useState(
+    window.matchMedia("(max-width: 700px)").matches,
+  );
+  const reducedMotion = window.matchMedia(
+    "(prefers-reduced-motion: reduce)",
+  ).matches;
+  const auto = active && !paused && !reducedMotion && !mobile;
+
+  useEffect(() => {
+    const query = window.matchMedia("(max-width: 700px)");
+    const change = () => setMobile(query.matches);
+    query.addEventListener("change", change);
+    return () => query.removeEventListener("change", change);
+  }, []);
+
+  const itemWidth = useCallback(() => {
+    const first = shelf.current?.querySelector<HTMLElement>(".intro-card-wrap");
+    const second = first?.nextElementSibling as HTMLElement | null;
+    return first && second ? second.offsetLeft - first.offsetLeft : 340;
+  }, []);
+
+  const updateScale = useCallback(() => {
+    const el = shelf.current;
+    if (!el) return;
+    const center = el.getBoundingClientRect().left + el.clientWidth / 2;
+    const width = itemWidth();
+    for (const card of el.querySelectorAll<HTMLElement>(".intro-card-wrap")) {
+      const rect = card.getBoundingClientRect();
+      const distance = Math.abs(rect.left + rect.width / 2 - center);
+      const proximity = Math.max(0, 1 - distance / (width * 1.55));
+      card.style.setProperty("--card-scale", String(0.88 + proximity * 0.17));
+    }
+    setIndex(
+      Math.min(
+        journeys.length - 1,
+        Math.round(el.scrollLeft / width) % journeys.length,
+      ),
+    );
+  }, [itemWidth, journeys.length]);
+
+  useEffect(() => {
+    const el = shelf.current;
+    if (!el) return;
+    updateScale();
+    const observer = new ResizeObserver(updateScale);
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [updateScale]);
+
+  useEffect(() => {
+    if (!auto) return;
+    const el = shelf.current;
+    if (!el) return;
+    let frame = 0,
+      last = performance.now();
+    const tick = (now: number) => {
+      const delta = Math.min(now - last, 50);
+      last = now;
+      if (!pausedByGesture.current && !document.hidden) {
+        el.scrollLeft += delta * 0.012;
+        const loop = itemWidth() * journeys.length;
+        if (el.scrollLeft >= loop) el.scrollLeft -= loop;
+      }
+      frame = requestAnimationFrame(tick);
+    };
+    frame = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(frame);
+  }, [auto, journeys.length, itemWidth]);
+
+  const go = (step: number) => {
+    const el = shelf.current;
+    if (!el) return;
+    setPaused(true);
+    const next = (index + step + journeys.length) % journeys.length;
+    el.scrollTo({
+      left: next * itemWidth(),
+      behavior: reducedMotion ? "instant" : "smooth",
+    });
+    setIndex(next);
+  };
+
+  const renderCard = (journey: Journey, clone: boolean) => {
+    const image = imageByWord.get(journey.id);
+    if (!image) return null;
+    return (
+      <div
+        className="intro-card-wrap"
+        key={`${journey.id}-${clone ? "copy" : "real"}`}
+      >
+        <div className="intro-card">
+          <button
+            className="intro-card-main"
+            type="button"
+            tabIndex={clone ? -1 : 0}
+            onClick={() => onOpen(journey.id)}
+            aria-label={`Explore ${journey.current_english_word}. ${journey.hook}`}
+          >
+            <span className="intro-image">
+              <img
+                src={introThumbnailUrl(image)}
+                alt={image.alt_text}
+                loading={journeys.indexOf(journey) < 5 ? "eager" : "lazy"}
+                style={{
+                  objectPosition: image.display_object_position || "center",
+                }}
+              />
+            </span>
+            <span className="intro-copy">
+              <span className="intro-word">{journey.current_english_word}</span>
+              <span className="intro-hook">{journey.hook}</span>
+              <span className="intro-invite">
+                Begin journey <span aria-hidden="true">↗</span>
+              </span>
+            </span>
+          </button>
+          <button
+            className="credit-trigger"
+            type="button"
+            tabIndex={clone ? -1 : 0}
+            onClick={() => onCredit(image)}
+            aria-label={`Image credit for ${journey.current_english_word}`}
+          >
+            Image credit
+          </button>
+        </div>
+      </div>
+    );
+  };
+
+  return (
+    <section
+      className={`shelf-section${active ? "" : " is-hidden"}`}
+      aria-label="Choose a word"
+      aria-hidden={!active}
+    >
+      <div
+        className="shelf-viewport"
+        ref={shelf}
+        onScroll={updateScale}
+        onMouseEnter={() => {
+          pausedByGesture.current = true;
+        }}
+        onMouseLeave={() => {
+          pausedByGesture.current = false;
+        }}
+        onFocusCapture={() => {
+          pausedByGesture.current = true;
+        }}
+        onBlurCapture={(event) => {
+          if (!event.currentTarget.contains(event.relatedTarget))
+            pausedByGesture.current = false;
+        }}
+        onPointerDown={() => {
+          pausedByGesture.current = true;
+        }}
+        onPointerUp={() => {
+          pausedByGesture.current = false;
+        }}
+      >
+        <div className="shelf-track">
+          {journeys.map((j) => (
+            <div
+              key={j.id}
+              data-word={j.id}
+              className={selectedWord === j.id ? "selected-card" : ""}
+            >
+              {renderCard(j, false)}
+            </div>
+          ))}
+          <div className="shelf-clones" aria-hidden="true">
+            {journeys.map((j) => renderCard(j, true))}
+          </div>
+        </div>
+      </div>
+      <div className="shelf-controls">
+        <button
+          type="button"
+          onClick={() => go(-1)}
+          aria-label="Previous words"
+        >
+          ←
+        </button>
+        <span aria-live="polite">
+          {String(index + 1).padStart(2, "0")} /{" "}
+          {String(journeys.length).padStart(2, "0")}
+        </span>
+        <button
+          type="button"
+          className="pause-control"
+          onClick={() => setPaused((v) => !v)}
+          aria-label={paused ? "Play carousel" : "Pause carousel"}
+        >
+          {paused ? "▶" : "Ⅱ"}
+        </button>
+        <button type="button" onClick={() => go(1)} aria-label="Next words">
+          →
+        </button>
+      </div>
+    </section>
+  );
+}
