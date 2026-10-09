@@ -732,6 +732,10 @@ summary:focus-visible {
   overflow: hidden;
   text-overflow: ellipsis;
 }
+.map-pin.is-active .pin-word {
+  font-size: 15px;
+  max-width: 119px;
+}
 .mapboxgl-popup-content {
   background: var(--card);
   color: var(--ink);
