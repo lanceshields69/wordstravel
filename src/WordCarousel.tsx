@@ -79,14 +79,18 @@ export default function WordCarousel({
     const el = shelf.current;
     if (!el) return;
     let frame = 0,
-      last = performance.now();
+      last = performance.now(),
+      position = el.scrollLeft;
     const tick = (now: number) => {
       const delta = Math.min(now - last, 50);
       last = now;
       if (!pausedByGesture.current && !document.hidden) {
-        el.scrollLeft += delta * 0.012;
+        position += delta * 0.012;
         const loop = itemWidth() * journeys.length;
-        if (el.scrollLeft >= loop) el.scrollLeft -= loop;
+        if (position >= loop) position -= loop;
+        el.scrollLeft = position;
+      } else {
+        position = el.scrollLeft;
       }
       frame = requestAnimationFrame(tick);
     };

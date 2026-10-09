@@ -311,7 +311,7 @@ export default function Globe({
     map.easeTo({
       center: positionOf(activeCard),
       zoom: isMobile ? 1.65 : 1.85,
-      offset: isMobile ? [0, -window.innerHeight * 0.29] : [235, 0],
+      offset: isMobile ? [0, -window.innerHeight * 0.29] : [285, 0],
       duration: reduceMotion.current ? 0 : 850,
       essential: true,
     });
@@ -327,7 +327,7 @@ export default function Globe({
       map.easeTo({
         center: positionOf(activeCard),
         zoom: mobile ? 1.65 : 1.85,
-        offset: mobile ? [0, -window.innerHeight * 0.29] : [235, 0],
+        offset: mobile ? [0, -window.innerHeight * 0.29] : [285, 0],
         duration: 0,
       });
     };
