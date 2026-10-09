@@ -18,10 +18,20 @@ type Props = {
 };
 const token = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN;
 
-function focusZoom(map: MapboxMap, mobile: boolean) {
-  if (mobile) return 1.65;
-  const availableWidth = map.getContainer().clientWidth - 24;
-  return Math.max(0.75, Math.min(1.85, 1.85 + Math.log2(availableWidth / 650)));
+function focusZoom(mobile: boolean) {
+  const tenPercentLarger = Math.log2(1.1);
+  if (mobile) return 1.65 + tenPercentLarger;
+  const width = window.innerWidth;
+  const storyRight =
+    width <= 1000
+      ? 389
+      : Math.min(82, Math.max(24, width * 0.048)) + Math.min(398, width * 0.36);
+  const availableWidth = width - storyRight - 40;
+  const baseZoom = Math.max(
+    0.75,
+    Math.min(1.85, 1.85 + Math.log2(availableWidth / 650)),
+  );
+  return baseZoom + tenPercentLarger;
 }
 
 function configureStyle(map: MapboxMap) {
@@ -326,7 +336,7 @@ export default function Globe({
     const isMobile = window.matchMedia("(max-width: 700px)").matches;
     map.easeTo({
       center: positionOf(activeCard),
-      zoom: focusZoom(map, isMobile),
+      zoom: focusZoom(isMobile),
       offset: isMobile ? [0, -window.innerHeight * 0.29] : [0, 0],
       duration: reduceMotion.current ? 0 : 850,
       essential: true,
@@ -342,7 +352,7 @@ export default function Globe({
       const mobile = window.matchMedia("(max-width: 700px)").matches;
       map.easeTo({
         center: positionOf(activeCard),
-        zoom: focusZoom(map, mobile),
+        zoom: focusZoom(mobile),
         offset: mobile ? [0, -window.innerHeight * 0.29] : [0, 0],
         duration: 0,
       });

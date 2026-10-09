@@ -67,7 +67,7 @@ summary:focus-visible {
 }
 .phase-leaving .map-container,
 .phase-journey .map-container {
-  left: calc(clamp(24px, 4.8vw, 82px) + min(398px, 36vw) + 16px);
+  left: clamp(0px, calc(1440px - 100vw), 380px);
 }
 .globe-veil {
   position: absolute;
@@ -836,7 +836,7 @@ summary:focus-visible {
   font-size: 25px;
 }
 .phase-journey .mapboxgl-ctrl-bottom-left {
-  left: 0;
+  left: 33%;
 }
 .phase-journey .mapboxgl-ctrl-bottom-right {
   right: 20px;
@@ -848,10 +848,6 @@ summary:focus-visible {
   color: #263a40;
 }
 @media (max-width: 1000px) {
-  .phase-leaving .map-container,
-  .phase-journey .map-container {
-    left: 405px;
-  }
   .intro-card-wrap {
     width: 290px;
     height: 397px;
@@ -865,9 +861,6 @@ summary:focus-visible {
   .story-panel {
     width: 365px;
     left: 24px;
-  }
-  .phase-journey .mapboxgl-ctrl-bottom-left {
-    left: 0;
   }
   .journey-caption {
     right: 25px;
