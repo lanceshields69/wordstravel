@@ -6,7 +6,6 @@ type Props = {
   journey: Journey;
   card: Card;
   onSelect: (id: string) => void;
-  onBack: () => void;
   onNextWord: () => void;
   onRecenter: () => void;
   mapAvailable: boolean;
@@ -33,6 +32,8 @@ function PronunciationButton({ card }: { card: Card }) {
   const [voices, setVoices] = useState<SpeechSynthesisVoice[]>([]);
   const [state, setState] = useState<"idle" | "playing" | "error">("idle");
   const [checking, setChecking] = useState(true);
+  const [showReason, setShowReason] = useState(false);
+
   useEffect(() => {
     if (typeof speechSynthesis === "undefined") {
       const timer = setTimeout(() => setChecking(false), 0);
@@ -52,13 +53,12 @@ function PronunciationButton({ card }: { card: Card }) {
       browserPronunciation.stop();
     };
   }, [card.id]);
+
   const language = card.pronunciation.generation.language;
   const voice = useMemo(
     () =>
       language
-        ? (voices.find(
-            (v) => v.lang.toLowerCase() === language.toLowerCase(),
-          ) ??
+        ? (voices.find((v) => v.lang.toLowerCase() === language.toLowerCase()) ??
           voices.find(
             (v) =>
               v.lang.toLowerCase().split("-")[0] ===
@@ -67,30 +67,22 @@ function PronunciationButton({ card }: { card: Card }) {
         : null,
     [language, voices],
   );
-  if (checking && language && !voice)
-    return (
-      <span className="pronunciation-unavailable">Checking pronunciation…</span>
-    );
-  if (!language)
-    return (
-      <span className="pronunciation-unavailable">
-        Pronunciation not available yet
-        <small>Reading awaits review.</small>
-      </span>
-    );
-  if (!voice)
-    return (
-      <span className="pronunciation-unavailable">
-        Pronunciation not available yet
-        <small>No matching voice on this device.</small>
-      </span>
-    );
+  const unavailable = !checking && (!language || !voice);
+  const reason = !language
+    ? "Reading awaits review."
+    : "No matching voice on this device.";
+
   return (
-    <span className="pronunciation-wrap">
+    <div className="pronunciation-wrap">
       <button
         type="button"
         className="pronunciation-button"
         onClick={() => {
+          if (unavailable) {
+            setShowReason((current) => !current);
+            return;
+          }
+          if (!voice) return;
           setState("playing");
           browserPronunciation.speak(
             card,
@@ -99,17 +91,24 @@ function PronunciationButton({ card }: { card: Card }) {
             () => setState("error"),
           );
         }}
-        aria-label={`Play modern illustrative pronunciation of ${card.pronunciation.generation.text}`}
+        aria-label={
+          unavailable
+            ? `Pronunciation unavailable for ${card.spelling}. ${reason}`
+            : checking && !voice
+              ? "Checking pronunciation availability"
+              : `Play modern illustrative pronunciation of ${card.pronunciation.generation.text}`
+        }
+        aria-expanded={unavailable ? showReason : undefined}
+        title={unavailable ? `Pronunciation not available yet. ${reason}` : "Hear a reading"}
       >
-        <span aria-hidden="true">◖))</span>{" "}
-        {state === "playing"
-          ? "Playing reading"
-          : state === "error"
-            ? "Try reading again"
-            : "Hear a reading"}
+        <img src="/icons/pronunciation.svg" alt="" aria-hidden="true" />
       </button>
-      <small>Modern illustrative reading</small>
-    </span>
+      {(showReason || state === "error") && (
+        <span className="pronunciation-note" role="status">
+          {state === "error" ? "Could not play this reading." : `Pronunciation not available yet. ${reason}`}
+        </span>
+      )}
+    </div>
   );
 }
 
@@ -117,17 +116,16 @@ export default function JourneyCard({
   journey,
   card,
   onSelect,
-  onBack,
   onNextWord,
   onRecenter,
   mapAvailable,
 }: Props) {
-  const index = journey.cards.findIndex((c) => c.id === card.id);
-  const [outlineOpen, setOutlineOpen] = useState(false);
+  const index = journey.cards.findIndex((item) => item.id === card.id);
   const [expanded, setExpanded] = useState(true);
   const related = journey.edges.filter(
     (edge) => edge.from === card.id || edge.to === card.id,
   );
+  const chapterNumber = String(index + 1).padStart(2, "0");
 
   return (
     <section
@@ -141,7 +139,7 @@ export default function JourneyCard({
         <button
           className="sheet-toggle"
           type="button"
-          onClick={() => setExpanded((v) => !v)}
+          onClick={() => setExpanded((current) => !current)}
           aria-expanded={expanded}
         >
           {expanded ? "Collapse" : "Open"} story
@@ -150,154 +148,151 @@ export default function JourneyCard({
       {expanded && (
         <>
           <div className="story-scroll">
-            <div className="location-line">
+            <div className="journey-card-meta">
               <span>{card.location.label}</span>
-              <span aria-hidden="true">/</span>
-              <span>{card.language}</span>
+              <span>
+                {card.date.label === "Date not established in reviewed sources"
+                  ? "Date uncertain"
+                  : card.date.label}
+              </span>
             </div>
-            <p className="date-line">{card.date.label}</p>
-            <ScriptWord card={card} />
-            {card.transliteration && card.transliteration !== card.spelling && (
-              <p className="transliteration">{card.transliteration}</p>
-            )}
-            <p className="meaning">{card.meaning}</p>
-            <PronunciationButton card={card} />
-            <div className="story-rule" />
-            <p className="story-text">{card.story}</p>
-            {card.travel?.summary && (
-              <div className="story-detail">
-                <h3>How it traveled</h3>
-                <p>{card.travel.summary}</p>
+            <div className="journey-card-word-row">
+              <ScriptWord card={card} />
+              <PronunciationButton card={card} />
+            </div>
+            <div className="journey-card-subline">
+              <span className="journey-language">{card.language}</span>
+              <span className="journey-subline-rule" aria-hidden="true" />
+              <span>{card.meaning.charAt(0).toUpperCase() + card.meaning.slice(1)}</span>
+            </div>
+            <div className="journey-card-feature">
+              <div className="journey-card-illustration" aria-hidden="true">
+                <span>{card.spelling.charAt(0).toUpperCase()}</span>
               </div>
-            )}
-            {card.cultural_change && (
-              <div className="story-detail">
-                <h3>What changed</h3>
-                <p>{card.cultural_change}</p>
+              <div className="journey-card-feature-copy">
+                <p className="journey-chapter-label">Chapter {chapterNumber}</p>
+                <h3>{card.title}</h3>
+                <p>{card.story}</p>
               </div>
-            )}
-            {related.length > 0 && (
-              <div className="story-detail">
-                <h3>Connections</h3>
-                <ul>
-                  {related.map((edge, i) => (
-                    <li key={`${edge.from}-${edge.to}-${i}`}>
-                      <strong>{edge.relationship.replaceAll("_", " ")}</strong>
-                      {edge.confidence !== "supported" && (
-                        <span className="uncertain-tag">
-                          {" "}
-                          · {edge.confidence.replaceAll("_", " ")}
-                        </span>
-                      )}
-                      <span className="edge-note">{edge.note}</span>
-                    </li>
-                  ))}
-                </ul>
-                <p className="route-explainer">
-                  Solid lines show supported relationships; dashed lines show
-                  qualified ones. Lines connect editorial anchors, not
-                  documented physical routes.
-                </p>
+            </div>
+            <details className="journey-accordion">
+              <summary>
+                <span>Journey notes</span>
+                <span className="accordion-symbol" aria-hidden="true" />
+              </summary>
+              <div className="journey-accordion-body">
+                <dl className="journey-notes">
+                  {card.travel?.summary && (
+                    <div>
+                      <dt>How it traveled</dt>
+                      <dd>{card.travel.summary}</dd>
+                    </div>
+                  )}
+                  {card.cultural_change && (
+                    <div>
+                      <dt>What changed</dt>
+                      <dd>{card.cultural_change}</dd>
+                    </div>
+                  )}
+                </dl>
+                <details className="journey-research">
+                  <summary>Research context</summary>
+                  {card.transliteration && card.transliteration !== card.spelling && (
+                    <p>Transliteration: {card.transliteration}</p>
+                  )}
+                  <p>{card.claim_scope || journey.research_note}</p>
+                  {card.location.note && <p>{card.location.note}</p>}
+                  {card.date.note && <p>{card.date.note}</p>}
+                  <p>
+                    Research status: {card.review_status.replaceAll("_", " ")}.
+                    Confidence: {card.confidence.replaceAll("_", " ")}.
+                  </p>
+                  {related.length > 0 && (
+                    <ul>
+                      {related.map((edge, edgeIndex) => (
+                        <li key={`${edge.from}-${edge.to}-${edgeIndex}`}>
+                          {edge.relationship.replaceAll("_", " ")}: {edge.note}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </details>
               </div>
-            )}
-            <details className="about-step">
-              <summary>About this step</summary>
-              <p>{card.claim_scope || journey.research_note}</p>
-              <p>{card.location.note}</p>
-              <p>{card.date.note}</p>
-              <p>
-                Research status: {card.review_status.replaceAll("_", " ")}.
-                Confidence: {card.confidence.replaceAll("_", " ")}.
-              </p>
             </details>
-            {card.learn_more?.length > 0 && (
-              <div className="source-section">
-                <h3>Learn more</h3>
-                <p>
-                  Journey references; individual details may need further
-                  review.
-                </p>
-                <ul>
-                  {card.learn_more.map((source) => (
-                    <li key={source.source_id}>
-                      <a
-                        href={source.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        {source.title} <span aria-hidden="true">↗</span>
-                      </a>
-                      <span>{source.publisher}</span>
-                    </li>
-                  ))}
-                </ul>
+            <details className="journey-accordion">
+              <summary>
+                <span>Sources</span>
+                <span className="accordion-symbol" aria-hidden="true" />
+              </summary>
+              <div className="journey-accordion-body journey-sources">
+                {card.learn_more?.length ? (
+                  <ul>
+                    {card.learn_more.map((source, sourceIndex) => (
+                      <li key={source.source_id}>
+                        <a
+                          href={source.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          title={source.title}
+                        >
+                          {source.publisher}
+                        </a>
+                        {sourceIndex < card.learn_more.length - 1 ? "; " : ""}
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p>{journey.research_note}</p>
+                )}
               </div>
-            )}
+            </details>
           </div>
-          <div className="story-footer">
+          <nav className="story-footer" aria-label="Journey chapters">
             <button
-              className="outline-button"
+              className="journey-nav-arrow"
               type="button"
-              onClick={() => setOutlineOpen((v) => !v)}
-              aria-expanded={outlineOpen}
+              disabled={index === 0}
+              onClick={() => onSelect(journey.cards[index - 1].id)}
+              aria-label={`Previous chapter: ${journey.cards[index - 1]?.spelling ?? "none"}`}
             >
-              {outlineOpen ? "Hide chapters" : "All chapters"}{" "}
-              <span aria-hidden="true">⌄</span>
+              <img src="/icons/previous.svg" alt="" aria-hidden="true" />
             </button>
-            {outlineOpen && (
-              <ol className="chapter-list">
-                {journey.cards.map((c, i) => (
-                  <li key={c.id}>
-                    <button
-                      type="button"
-                      className={c.id === card.id ? "is-current" : ""}
-                      onClick={() => {
-                        onSelect(c.id);
-                        setOutlineOpen(false);
-                      }}
-                    >
-                      {i + 1}. {c.spelling} <small>{c.location.label}</small>
-                    </button>
-                  </li>
+            <div className="journey-progress">
+              <span>Stop {index + 1} of {journey.cards.length}</span>
+              <div className="journey-progress-bars">
+                {journey.cards.map((item, itemIndex) => (
+                  <button
+                    key={item.id}
+                    type="button"
+                    className={itemIndex === index ? "is-current" : ""}
+                    aria-label={`Go to stop ${itemIndex + 1}: ${item.spelling}`}
+                    aria-current={itemIndex === index ? "step" : undefined}
+                    onClick={() =>
+                      itemIndex === index && mapAvailable
+                        ? onRecenter()
+                        : onSelect(item.id)
+                    }
+                  />
                 ))}
-              </ol>
-            )}
-            <div className="chapter-nav">
-              <button
-                type="button"
-                disabled={index === 0}
-                onClick={() => onSelect(journey.cards[index - 1].id)}
-                aria-label={`Previous chapter: ${journey.cards[index - 1]?.spelling ?? "none"}`}
-              >
-                ← Previous
-              </button>
-              {index < journey.cards.length - 1 ? (
-                <button
-                  type="button"
-                  onClick={() => onSelect(journey.cards[index + 1].id)}
-                  aria-label={`Next chapter: ${journey.cards[index + 1].spelling}`}
-                >
-                  Next →
-                </button>
-              ) : (
-                <button type="button" onClick={onBack}>
-                  Back to words →
-                </button>
-              )}
+              </div>
             </div>
-            <div className="story-extras">
-              {mapAvailable && (
-                <button type="button" onClick={onRecenter}>
-                  Recenter globe
-                </button>
-              )}
-              {index === journey.cards.length - 1 && (
-                <button type="button" onClick={onNextWord}>
-                  Explore another word
-                </button>
-              )}
-            </div>
-          </div>
+            <button
+              className="journey-nav-arrow"
+              type="button"
+              onClick={() =>
+                index < journey.cards.length - 1
+                  ? onSelect(journey.cards[index + 1].id)
+                  : onNextWord()
+              }
+              aria-label={
+                index < journey.cards.length - 1
+                  ? `Next chapter: ${journey.cards[index + 1].spelling}`
+                  : "Explore another word"
+              }
+            >
+              <img src="/icons/next.svg" alt="" aria-hidden="true" />
+            </button>
+          </nav>
         </>
       )}
     </section>

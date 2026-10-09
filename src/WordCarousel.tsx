@@ -21,6 +21,14 @@ export default function WordCarousel({
   onOpen,
   onCredit,
 }: Props) {
+  const [displayJourneys] = useState(() => {
+    const shuffled = [...journeys];
+    for (let i = shuffled.length - 1; i > 0; i -= 1) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    return shuffled;
+  });
   const shelf = useRef<HTMLDivElement>(null);
   const pausedByGesture = useRef(false);
   const [paused, setPaused] = useState(false);
@@ -59,11 +67,11 @@ export default function WordCarousel({
     }
     setIndex(
       Math.min(
-        journeys.length - 1,
-        Math.round(el.scrollLeft / width) % journeys.length,
+        displayJourneys.length - 1,
+        Math.round(el.scrollLeft / width) % displayJourneys.length,
       ),
     );
-  }, [itemWidth, journeys.length]);
+  }, [itemWidth, displayJourneys.length]);
 
   useEffect(() => {
     const el = shelf.current;
@@ -86,7 +94,7 @@ export default function WordCarousel({
       last = now;
       if (!pausedByGesture.current && !document.hidden) {
         position += delta * 0.012;
-        const loop = itemWidth() * journeys.length;
+        const loop = itemWidth() * displayJourneys.length;
         if (position >= loop) position -= loop;
         el.scrollLeft = position;
       } else {
@@ -96,13 +104,13 @@ export default function WordCarousel({
     };
     frame = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(frame);
-  }, [auto, journeys.length, itemWidth]);
+  }, [auto, displayJourneys.length, itemWidth]);
 
   const go = (step: number) => {
     const el = shelf.current;
     if (!el) return;
     setPaused(true);
-    const next = (index + step + journeys.length) % journeys.length;
+    const next = (index + step + displayJourneys.length) % displayJourneys.length;
     el.scrollTo({
       left: next * itemWidth(),
       behavior: reducedMotion ? "instant" : "smooth",
@@ -130,7 +138,7 @@ export default function WordCarousel({
               <img
                 src={introThumbnailUrl(image)}
                 alt={image.alt_text}
-                loading={journeys.indexOf(journey) < 5 ? "eager" : "lazy"}
+                loading={displayJourneys.indexOf(journey) < 5 ? "eager" : "lazy"}
                 style={{
                   objectPosition: image.display_object_position || "center",
                 }}
@@ -189,7 +197,7 @@ export default function WordCarousel({
         }}
       >
         <div className="shelf-track">
-          {journeys.map((j) => (
+          {displayJourneys.map((j) => (
             <div
               key={j.id}
               data-word={j.id}
@@ -199,7 +207,7 @@ export default function WordCarousel({
             </div>
           ))}
           <div className="shelf-clones" aria-hidden="true">
-            {journeys.map((j) => renderCard(j, true))}
+            {displayJourneys.map((j) => renderCard(j, true))}
           </div>
         </div>
       </div>
@@ -213,7 +221,7 @@ export default function WordCarousel({
         </button>
         <span aria-live="polite">
           {String(index + 1).padStart(2, "0")} /{" "}
-          {String(journeys.length).padStart(2, "0")}
+          {String(displayJourneys.length).padStart(2, "0")}
         </span>
         <button
           type="button"

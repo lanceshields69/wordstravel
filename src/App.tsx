@@ -259,7 +259,8 @@ export default function App() {
         </button>
         {phase !== "browse" && (
           <button className="explore-button" type="button" onClick={browse}>
-            Explore words <span aria-hidden="true">↗</span>
+            <img src="/icons/grid.svg" alt="" aria-hidden="true" />
+            Explore more words
           </button>
         )}
       </header>
@@ -287,7 +288,6 @@ export default function App() {
           journey={journey}
           card={card}
           onSelect={selectCard}
-          onBack={browse}
           onNextWord={nextWord}
           onRecenter={() => setRecenterKey((k) => k + 1)}
           mapAvailable={mapAvailable}
