@@ -18,6 +18,12 @@ type Props = {
 };
 const token = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN;
 
+function focusZoom(map: MapboxMap, mobile: boolean) {
+  if (mobile) return 1.65;
+  const availableWidth = map.getContainer().clientWidth - 24;
+  return Math.max(0.75, Math.min(1.85, 1.85 + Math.log2(availableWidth / 650)));
+}
+
 function configureStyle(map: MapboxMap) {
   map.setProjection("globe");
   map.setFog({
@@ -279,14 +285,23 @@ export default function Globe({
           });
           list.append(item);
         }
-        popupRef.current = new mapboxgl.Popup({ offset: 20, closeButton: true, closeOnClick: false })
+        popupRef.current = new mapboxgl.Popup({
+          offset: 20,
+          closeButton: true,
+          closeOnClick: false,
+        })
           .setLngLat(positionOf(lead))
           .setDOMContent(list)
           .addTo(map);
         (list.querySelector("button") as HTMLButtonElement)?.focus();
       });
       markersRef.current.push(
-        new mapboxgl.Marker({ element, anchor: "bottom", occludedOpacity: 0 })
+        new mapboxgl.Marker({
+          element,
+          anchor: "left",
+          offset: [-15, 0],
+          occludedOpacity: 0,
+        })
           .setLngLat(positionOf(lead))
           .addTo(map),
       );
@@ -305,13 +320,14 @@ export default function Globe({
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !ready) return;
+    map.resize();
     map.stop();
     if (!activeCard || mode === "browse") return;
     const isMobile = window.matchMedia("(max-width: 700px)").matches;
     map.easeTo({
       center: positionOf(activeCard),
-      zoom: isMobile ? 1.65 : 1.85,
-      offset: isMobile ? [0, -window.innerHeight * 0.29] : [285, 0],
+      zoom: focusZoom(map, isMobile),
+      offset: isMobile ? [0, -window.innerHeight * 0.29] : [0, 0],
       duration: reduceMotion.current ? 0 : 850,
       essential: true,
     });
@@ -326,8 +342,8 @@ export default function Globe({
       const mobile = window.matchMedia("(max-width: 700px)").matches;
       map.easeTo({
         center: positionOf(activeCard),
-        zoom: mobile ? 1.65 : 1.85,
-        offset: mobile ? [0, -window.innerHeight * 0.29] : [285, 0],
+        zoom: focusZoom(map, mobile),
+        offset: mobile ? [0, -window.innerHeight * 0.29] : [0, 0],
         duration: 0,
       });
     };
