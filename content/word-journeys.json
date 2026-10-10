@@ -1931,12 +1931,13 @@
             "generation": {
               "language": null,
               "text": "gingifer",
-              "label": "Specialist reading required; generation pending",
+              "label": "Owner-approved Old English recording; historical source details pending",
               "prompt": "Read only 'gingifer' in Old English. No introduction. Illustrative pronunciation; not a historical reconstruction.",
-              "status": "not_generated",
-              "audio_url": null,
-              "review_required": true,
-              "provider": "not selected"
+              "status": "user_recorded",
+              "audio_url": "/audio/ginger/ginger-old-english.mp3?v=725cfcfc",
+              "owner_approved_audio": true,
+              "review_required": false,
+              "provider": "user recording"
             }
           },
           "visual": {
