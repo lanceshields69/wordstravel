@@ -88,6 +88,12 @@ summary:focus-visible {
   justify-content: space-between;
   padding: 25px clamp(22px, 4.8vw, 88px);
 }
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-left: auto;
+}
 .brand {
   background: none;
   border: 0;
@@ -874,6 +880,90 @@ summary:focus-visible {
   width: 38px;
   height: 38px;
   font-size: 25px;
+}
+.about-dialog {
+  display: flex;
+  flex-direction: column;
+  width: min(640px, calc(100vw - 32px));
+  max-height: min(86dvh, 780px);
+  margin: auto;
+  padding: 48px 52px 44px;
+  overflow: hidden;
+  border: 1px solid #dddcd2;
+  border-radius: 14px;
+  background: var(--card);
+  color: var(--ink);
+  box-shadow: 0 28px 75px rgba(0, 0, 0, 0.32);
+  opacity: 0;
+  transition: opacity 180ms ease;
+}
+.about-dialog:not([open]) {
+  display: none;
+}
+.about-dialog.is-visible {
+  opacity: 1;
+}
+.about-dialog::backdrop {
+  background: rgba(6, 24, 28, 0);
+  transition: background 180ms ease;
+}
+.about-dialog.is-visible::backdrop {
+  background: rgba(6, 24, 28, 0.72);
+}
+.about-dialog-close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 44px;
+  height: 44px;
+  border: 1px solid #bcc7be;
+  background: var(--card);
+  color: var(--ink);
+  font-size: 27px;
+  line-height: 1;
+}
+.about-dialog h2 {
+  margin: 0 52px 0 0;
+  font: 500 43px/1.1 "Newsreader", serif;
+  letter-spacing: -0.025em;
+}
+.about-byline {
+  margin: 8px 0 30px;
+  color: #63746d;
+  font: 400 12px/1.5 "DM Sans", sans-serif;
+}
+.about-story {
+  min-height: 0;
+  overflow-y: auto;
+  padding-right: 8px;
+  font: 400 15px/1.7 "DM Sans", sans-serif;
+}
+.about-story p {
+  margin: 0 0 19px;
+}
+.about-story p:last-child {
+  margin-bottom: 0;
+}
+.about-story a {
+  color: #875b43;
+  text-decoration-line: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+@media (max-width: 700px) {
+  .about-dialog {
+    max-height: calc(100dvh - 28px);
+    padding: 36px 24px 32px;
+  }
+  .about-dialog h2 {
+    font-size: 35px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .about-dialog,
+  .about-dialog::backdrop {
+    transition: none;
+  }
 }
 .phase-journey .mapboxgl-ctrl-bottom-left {
   left: 33%;
@@ -2165,5 +2255,117 @@ body::-webkit-scrollbar {
   }
   .site-footer small {
     justify-self: start;
+  }
+}
+
+.suggest-form {
+  margin-top: 24px;
+}
+.suggest-intro {
+  color: #52655e;
+}
+.suggest-field {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  margin: 0 0 18px;
+}
+.suggest-field label {
+  font: 600 13px/1.4 "DM Sans", sans-serif;
+}
+.suggest-field input,
+.suggest-field textarea {
+  width: 100%;
+  border: 1px solid #bfcac0;
+  border-radius: 8px;
+  background: #fffefa;
+  color: var(--ink);
+  padding: 11px 12px;
+  font: 400 15px/1.5 "DM Sans", sans-serif;
+}
+.suggest-field textarea {
+  min-height: 75px;
+  resize: vertical;
+}
+.suggest-field input::placeholder,
+.suggest-field textarea::placeholder {
+  color: #6b7972;
+  opacity: 1;
+}
+.suggest-field input:focus-visible,
+.suggest-field textarea:focus-visible {
+  outline: 3px solid #d9976f;
+  outline-offset: 2px;
+}
+.suggest-field [aria-invalid="true"] {
+  border-color: #a74635;
+}
+.suggest-help,
+.suggest-error {
+  font: 400 12px/1.45 "DM Sans", sans-serif;
+}
+.suggest-help {
+  color: #60716a;
+}
+.suggest-error,
+.suggest-submit-error {
+  color: #9c382b;
+}
+.suggest-honeypot {
+  display: none;
+}
+.suggest-actions {
+  margin-top: 22px;
+}
+.suggest-submit {
+  min-height: 44px;
+  border: 1px solid var(--ink);
+  background: var(--ink);
+  color: var(--paper);
+  padding: 10px 20px;
+  font: 600 14px/1.4 "DM Sans", sans-serif;
+}
+.suggest-submit:hover:not(:disabled) {
+  background: #3b565c;
+}
+.suggest-submit:disabled {
+  opacity: 0.65;
+}
+.suggest-submit-error {
+  margin: 2px 0 0;
+  font: 500 13px/1.5 "DM Sans", sans-serif;
+}
+.suggest-success {
+  padding-top: 24px;
+}
+.suggest-success p {
+  margin-bottom: 23px;
+}
+.journey-suggest {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 22px;
+  padding: 3px 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: #8c593f;
+  font: 500 12px/1.5 "DM Sans", sans-serif;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+@media (max-width: 700px) {
+  .phase-browse .site-header {
+    flex-wrap: wrap;
+    row-gap: 12px;
+  }
+  .phase-browse .header-actions {
+    width: 100%;
+    justify-content: flex-end;
+    gap: 8px;
+  }
+  .phase-browse .explore-button {
+    min-height: 40px;
   }
 }

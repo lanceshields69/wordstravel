@@ -9,6 +9,9 @@ import {
   type IntroImage,
 } from "./content";
 import Globe from "./Globe";
+import AppDialog from "./AppDialog";
+import AboutStory from "./AboutStory";
+import SuggestWordForm from "./SuggestWordForm";
 import JourneyCard from "./JourneyCard";
 import WordCarousel from "./WordCarousel";
 import { browserPronunciation } from "./pronunciation";
@@ -128,6 +131,8 @@ export default function App() {
     initial.wordId ? "journey" : "browse",
   );
   const [credit, setCredit] = useState<IntroImage | null>(null);
+  const [aboutOpen, setAboutOpen] = useState(false);
+  const [suggestOpen, setSuggestOpen] = useState(false);
   const [mapStatus, setMapStatus] = useState<
     "ready" | "missing" | "error" | "loading"
   >("loading");
@@ -137,6 +142,8 @@ export default function App() {
   const [audioEnabled, setAudioEnabled] = useState(savedAudioPreference);
   const transitionTimer = useRef<number | null>(null);
   const creditOrigin = useRef<HTMLElement | null>(null);
+  const aboutButton = useRef<HTMLButtonElement>(null);
+  const suggestOrigin = useRef<HTMLElement | null>(null);
   const reducedMotion = useRef(
     window.matchMedia("(prefers-reduced-motion: reduce)").matches,
   );
@@ -311,6 +318,18 @@ export default function App() {
     setCredit(null);
     window.setTimeout(() => creditOrigin.current?.focus(), 0);
   }, []);
+  const closeAbout = useCallback(() => {
+    setAboutOpen(false);
+    window.setTimeout(() => aboutButton.current?.focus(), 0);
+  }, []);
+  const openSuggest = () => {
+    suggestOrigin.current = document.activeElement as HTMLElement | null;
+    setSuggestOpen(true);
+  };
+  const closeSuggest = () => {
+    setSuggestOpen(false);
+    window.setTimeout(() => suggestOrigin.current?.focus(), 0);
+  };
   const mapAvailable = mapStatus === "ready";
 
   return (
@@ -333,12 +352,36 @@ export default function App() {
         >
           <img src="/images/logo.svg" alt="" aria-hidden="true" />
         </button>
-        {phase !== "browse" && (
-          <button className="explore-button" type="button" onClick={browse}>
-            <img src="/icons/grid.svg" alt="" aria-hidden="true" />
-            Explore more words
-          </button>
-        )}
+        <div className="header-actions">
+          {phase === "browse" ? (
+            <>
+              <button
+                ref={aboutButton}
+                className="explore-button"
+                type="button"
+                onClick={() => setAboutOpen(true)}
+                aria-haspopup="dialog"
+              >
+                <img src="/icons/document.svg" alt="" aria-hidden="true" />
+                About this app
+              </button>
+              <button
+                className="explore-button"
+                type="button"
+                onClick={openSuggest}
+                aria-haspopup="dialog"
+              >
+                <img src="/icons/plus.svg" alt="" aria-hidden="true" />
+                Suggest a word
+              </button>
+            </>
+          ) : (
+            <button className="explore-button" type="button" onClick={browse}>
+              <img src="/icons/grid.svg" alt="" aria-hidden="true" />
+              Explore more words
+            </button>
+          )}
+        </div>
       </header>
       {phase !== "browse" && (
         <button
@@ -389,6 +432,7 @@ export default function App() {
           nextWordName={nextJourney?.current_english_word ?? ""}
           onSelect={selectCard}
           onNextWord={nextWord}
+          onSuggest={openSuggest}
           onRecenter={() => setRecenterKey((k) => k + 1)}
           mapAvailable={mapAvailable}
         />
@@ -449,6 +493,16 @@ export default function App() {
         </div>
       )}
       {credit && <ImageCredits image={credit} onClose={closeCredit} />}
+      {aboutOpen && (
+        <AppDialog title="About Words Travel" byline="Created by Lance Shields" onClose={closeAbout}>
+          <AboutStory />
+        </AppDialog>
+      )}
+      {suggestOpen && (
+        <AppDialog title="Suggest a word" onClose={closeSuggest} initialFocus='[name="word"]'>
+          <SuggestWordForm onDone={closeSuggest} />
+        </AppDialog>
+      )}
       <div className="sr-only" aria-live="polite">
         {phase === "journey" && card && journey
           ? `${journey.current_english_word}, chapter ${journey.cards.findIndex((c) => c.id === card.id) + 1}, ${card.location.label}`

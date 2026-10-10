@@ -9,6 +9,7 @@ type Props = {
   card: Card;
   onSelect: (id: string) => void;
   onNextWord: () => void;
+  onSuggest: () => void;
   nextWordName: string;
   onRecenter: () => void;
   mapAvailable: boolean;
@@ -235,6 +236,7 @@ export default function JourneyCard({
   card,
   onSelect,
   onNextWord,
+  onSuggest,
   nextWordName,
   onRecenter,
   mapAvailable,
@@ -448,6 +450,11 @@ export default function JourneyCard({
                 )}
               </div>
             </details>
+            {isLastChapter && (
+              <button className="journey-suggest" type="button" onClick={onSuggest} aria-haspopup="dialog">
+                Have another word in mind? Suggest a word <span aria-hidden="true">↗</span>
+              </button>
+            )}
             </div>
           </div>
           <nav className="story-footer" aria-label="Journey chapters">
