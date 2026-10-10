@@ -1314,15 +1314,18 @@ body::-webkit-scrollbar {
   text-align: right;
 }
 .journey-card-word-row {
-  min-height: 79px;
+  min-height: 101px;
   padding-top: 18px;
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
   gap: 8px;
 }
+.journey-card-word-stack {
+  min-width: 0;
+  flex: 1;
+}
 .journey-card-word-row .local-word {
-  max-width: 292px;
   font: 400 61px/0.96 "Newsreader", serif;
   letter-spacing: -0.045em;
 }
@@ -1333,6 +1336,12 @@ body::-webkit-scrollbar {
 .journey-card-word-row .local-word.devanagari {
   font: 400 48px/1.15 "Noto Sans Devanagari", sans-serif;
   letter-spacing: 0;
+}
+.journey-card-pronunciation {
+  margin: 6px 0 0;
+  color: #687470;
+  font: italic 400 16px/1.2 "Newsreader", serif;
+  overflow-wrap: anywhere;
 }
 .journey-card-word-row .pronunciation-wrap {
   flex: none;

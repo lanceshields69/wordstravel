@@ -193,7 +193,12 @@ export default function JourneyCard({
               </span>
             </div>
             <div className="journey-card-word-row">
-              <ScriptWord card={card} />
+              <div className="journey-card-word-stack">
+                <ScriptWord card={card} />
+                <p className="journey-card-pronunciation" dir="ltr">
+                  {card.pronunciation.display}
+                </p>
+              </div>
               <PronunciationButton key={card.id} card={card} />
             </div>
             <div className="journey-card-subline">
