@@ -236,6 +236,7 @@ export default function App() {
   const mapAvailable = mapStatus === "ready";
 
   return (
+    <>
     <main className={`app phase-${phase}`}>
       <Globe
         journey={journey}
@@ -269,7 +270,7 @@ export default function App() {
             <br />
             has a journey.
           </h1>
-          <p>Choose a word. Follow its journey.</p>
+          <p>Explore the extraordinary travels of everyday words.</p>
         </div>
       </div>
       <WordCarousel
@@ -340,5 +341,27 @@ export default function App() {
           : ""}
       </div>
     </main>
+    {phase === "browse" && (
+      <footer className="site-footer">
+        <div className="site-footer-inner">
+          <img
+            className="footer-wordmark"
+            src="/images/footer-logo.svg"
+            alt="Words Travel"
+          />
+          <a
+            className="footer-byline"
+            href="https://raftdesign.studio/"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <img src="/images/raft-design-icon.svg" alt="" aria-hidden="true" />
+            <span>By <u>Raft Design</u></span>
+          </a>
+          <small>© 2026 Raft Design. All rights reserved.</small>
+        </div>
+      </footer>
+    )}
+    </>
   );
 }
