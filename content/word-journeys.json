@@ -1582,7 +1582,7 @@
         "status": "selected Indic comparison; deeper Dravidian/Southeast Asian ancestry debated"
       },
       "hook": "A spice finds new names and new meanings.",
-      "research_note": "Do not treat the horn-shaped Sanskrit explanation as established; ancient reading needs specialist review. American Heritage gives a Middle Indic/Dravidian ancestry; Sanskrit is a selected comparison, not a proven earliest source. Do not animate Sanskrit as the uniquely established origin.",
+      "research_note": "Do not treat the horn-shaped Sanskrit explanation as established; the content owner reports the recorded reading was reviewed, with source details still to document. American Heritage gives a Middle Indic/Dravidian ancestry; Sanskrit is a selected comparison, not a proven earliest source. Do not animate Sanskrit as the uniquely established origin.",
       "cards": [
         {
           "id": "ginger-root",
@@ -1625,12 +1625,13 @@
             "generation": {
               "language": null,
               "text": "शृङ्गवेर",
-              "label": "Specialist reading required; generation pending",
+              "label": "Owner-approved Sanskrit recording; historical source details pending",
               "prompt": "Read only 'शृङ्गवेर' in Sanskrit. No introduction. This is an illustrative reading, not a historical reconstruction.",
-              "status": "not_generated",
-              "audio_url": null,
-              "review_required": true,
-              "provider": "not selected"
+              "status": "user_recorded",
+              "audio_url": "/audio/ginger/ginger-sanskrit.mp3?v=433f8265",
+              "owner_approved_audio": true,
+              "review_required": false,
+              "provider": "user recording"
             }
           },
           "visual": {
@@ -1726,12 +1727,13 @@
             "generation": {
               "language": null,
               "text": "ζιγγίβερις",
-              "label": "Specialist reading required; generation pending",
+              "label": "Owner-approved Ancient Greek recording; historical source details pending",
               "prompt": "Read only 'ζιγγίβερις' in Ancient Greek. No introduction. This is an illustrative reading, not a historical reconstruction.",
-              "status": "not_generated",
-              "audio_url": null,
-              "review_required": true,
-              "provider": "not selected"
+              "status": "user_recorded",
+              "audio_url": "/audio/ginger/ginger-ancient-greek.mp3?v=f3acb401",
+              "owner_approved_audio": true,
+              "review_required": false,
+              "provider": "user recording"
             }
           },
           "visual": {
@@ -7536,12 +7538,13 @@
             "generation": {
               "language": null,
               "text": "kê-chiap",
-              "label": "Specialist reading required; generation pending",
+              "label": "Owner-approved Hokkien recording; historical source details pending",
               "prompt": "Read only 'kê-chiap' in Hokkien. No introduction. This is an illustrative reading, not a historical reconstruction.",
-              "status": "not_generated",
-              "audio_url": null,
-              "review_required": true,
-              "provider": "not selected"
+              "status": "user_recorded",
+              "audio_url": "/audio/ketchup/ketchup-hokkien.mp3?v=2a8f51c1",
+              "owner_approved_audio": true,
+              "review_required": false,
+              "provider": "user recording"
             }
           },
           "visual": {
