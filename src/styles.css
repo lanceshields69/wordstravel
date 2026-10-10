@@ -1042,17 +1042,19 @@ summary:focus-visible {
   .shelf-track {
     gap: 12px;
     padding: 15px 10vw 22px;
-    scroll-snap-type: x mandatory;
   }
   .shelf-track > div,
   .shelf-clones > .intro-card-wrap {
-    scroll-snap-align: center;
+    scroll-snap-align: start;
+    scroll-snap-stop: always;
   }
   .shelf-clones {
     gap: 12px;
   }
   .shelf-viewport {
     scroll-snap-type: x mandatory;
+    scroll-padding-inline: 10vw;
+    -webkit-overflow-scrolling: touch;
   }
   .intro-card-wrap {
     width: 77vw;
@@ -2249,6 +2251,9 @@ body::-webkit-scrollbar {
   }
   .phase-browse .shelf-track {
     padding-left: 24px;
+  }
+  .phase-browse .shelf-viewport {
+    scroll-padding-left: 24px;
   }
   .site-footer {
     margin-top: 64px;
