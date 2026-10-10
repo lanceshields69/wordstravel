@@ -1700,6 +1700,12 @@ body::-webkit-scrollbar {
 .phase-browse .shelf-section {
   padding-top: 30px;
 }
+/* Account for the first card's centered scale when aligning its visible edge. */
+.phase-browse .shelf-track {
+  padding-left: calc(
+    clamp(28px, 5.21vw, 100px) - clamp(10px, calc(2.14vw - 11.4px), 19px)
+  );
+}
 .site-footer {
   position: relative;
   z-index: 3;
@@ -1748,6 +1754,12 @@ body::-webkit-scrollbar {
   .phase-browse .browse-content {
     margin-top: 80px;
   }
+  .phase-browse .shelf-track {
+    padding-left: calc(
+      clamp(28px, 5.21vw, 100px) -
+        clamp(0px, calc(3.33vw - 23.33px), 10px)
+    );
+  }
   .hero-copy h1 {
     font-size: clamp(64px, 7.6vw, 86px);
     line-height: 0.87;
@@ -1783,6 +1795,9 @@ body::-webkit-scrollbar {
   }
   .phase-browse .shelf-section {
     padding-top: 50px;
+  }
+  .phase-browse .shelf-track {
+    padding-left: 24px;
   }
   .site-footer {
     margin-top: 64px;
