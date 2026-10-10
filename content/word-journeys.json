@@ -1829,12 +1829,13 @@
             "generation": {
               "language": null,
               "text": "zingiberi",
-              "label": "Specialist reading required; generation pending",
+              "label": "Owner-approved Latin recording; historical source details pending",
               "prompt": "Read only 'zingiberi' in Latin. No introduction. This is an illustrative reading, not a historical reconstruction.",
-              "status": "not_generated",
-              "audio_url": null,
-              "review_required": true,
-              "provider": "not selected"
+              "status": "user_recorded",
+              "audio_url": "/audio/ginger/ginger-latin.mp3?v=50eb3ce7",
+              "owner_approved_audio": true,
+              "review_required": false,
+              "provider": "user recording"
             }
           },
           "visual": {
