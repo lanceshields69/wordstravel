@@ -206,14 +206,20 @@ summary:focus-visible {
   gap: 18px;
 }
 .intro-card-wrap {
-  --card-scale: 0.9;
+  --card-scale: 0.88;
+  position: relative;
+  z-index: 0;
   width: 318px;
   height: 418px;
   flex: none;
   transform: scale(var(--card-scale));
   transform-origin: center center;
-  transition: transform 0.16s ease;
+  transition: transform 0.22s cubic-bezier(0.2, 0.8, 0.2, 1);
   will-change: transform;
+}
+.intro-card-wrap:is(:hover, :focus-within) {
+  --card-scale: 1.05;
+  z-index: 2;
 }
 .intro-card {
   position: relative;
@@ -1702,9 +1708,7 @@ body::-webkit-scrollbar {
 }
 /* Account for the first card's centered scale when aligning its visible edge. */
 .phase-browse .shelf-track {
-  padding-left: calc(
-    clamp(28px, 5.21vw, 100px) - clamp(10px, calc(2.14vw - 11.4px), 19px)
-  );
+  padding-left: calc(clamp(28px, 5.21vw, 100px) - 19px);
 }
 .site-footer {
   position: relative;
@@ -1755,10 +1759,7 @@ body::-webkit-scrollbar {
     margin-top: 80px;
   }
   .phase-browse .shelf-track {
-    padding-left: calc(
-      clamp(28px, 5.21vw, 100px) -
-        clamp(0px, calc(3.33vw - 23.33px), 10px)
-    );
+    padding-left: calc(clamp(28px, 5.21vw, 100px) - 17px);
   }
   .hero-copy h1 {
     font-size: clamp(64px, 7.6vw, 86px);

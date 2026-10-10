@@ -53,22 +53,17 @@ export default function WordCarousel({
   }, []);
 
   const itemWidth = useCallback(() => {
-    const first = shelf.current?.querySelector<HTMLElement>(".intro-card-wrap");
+    const first = shelf.current?.querySelector<HTMLElement>(
+      ".shelf-track > [data-word]",
+    );
     const second = first?.nextElementSibling as HTMLElement | null;
     return first && second ? second.offsetLeft - first.offsetLeft : 340;
   }, []);
 
-  const updateScale = useCallback(() => {
+  const updateIndex = useCallback(() => {
     const el = shelf.current;
     if (!el) return;
-    const center = el.getBoundingClientRect().left + el.clientWidth / 2;
     const width = itemWidth();
-    for (const card of el.querySelectorAll<HTMLElement>(".intro-card-wrap")) {
-      const rect = card.getBoundingClientRect();
-      const distance = Math.abs(rect.left + rect.width / 2 - center);
-      const proximity = Math.max(0, 1 - distance / (width * 1.55));
-      card.style.setProperty("--card-scale", String(0.88 + proximity * 0.17));
-    }
     setIndex(
       Math.min(
         displayJourneys.length - 1,
@@ -80,11 +75,11 @@ export default function WordCarousel({
   useEffect(() => {
     const el = shelf.current;
     if (!el) return;
-    updateScale();
-    const observer = new ResizeObserver(updateScale);
+    updateIndex();
+    const observer = new ResizeObserver(updateIndex);
     observer.observe(el);
     return () => observer.disconnect();
-  }, [updateScale]);
+  }, [updateIndex]);
 
   useEffect(() => {
     if (!auto) return;
@@ -179,7 +174,7 @@ export default function WordCarousel({
       <div
         className="shelf-viewport"
         ref={shelf}
-        onScroll={updateScale}
+        onScroll={updateIndex}
         onMouseEnter={() => {
           pausedByGesture.current = true;
         }}
@@ -205,7 +200,7 @@ export default function WordCarousel({
           onAnimationEnd={(event) => {
             if (event.animationName !== "shelf-arrive") return;
             setEntranceComplete(true);
-            updateScale();
+            updateIndex();
           }}
         >
           {displayJourneys.map((j) => (
