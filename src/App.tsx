@@ -250,12 +250,9 @@ export default function App() {
           className="brand"
           type="button"
           onClick={browse}
-          aria-label="Word Caravan — explore words"
+          aria-label="Words Travel — explore words"
         >
-          Word Caravan
-          <span className="brand-star" aria-hidden="true">
-            ✦
-          </span>
+          <img src="/images/logo.svg" alt="" aria-hidden="true" />
         </button>
         {phase !== "browse" && (
           <button className="explore-button" type="button" onClick={browse}>

@@ -91,17 +91,12 @@ summary:focus-visible {
   background: none;
   border: 0;
   padding: 0;
-  color: var(--paper);
-  font:
-    500 17px/1 "Newsreader",
-    serif;
-  letter-spacing: 0.01em;
+  display: block;
 }
-.brand-star {
-  color: #b87750;
-  font-size: 12px;
-  margin-left: 8px;
-  vertical-align: top;
+.brand img {
+  display: block;
+  width: 190px;
+  height: auto;
 }
 .explore-button {
   border: 1px solid rgba(245, 241, 232, 0.6);
@@ -715,6 +710,7 @@ summary:focus-visible {
   box-shadow:
     0 0 0 9px rgba(167, 101, 67, 0.32),
     0 0 0 18px rgba(167, 101, 67, 0.13);
+  animation: selected-halo-pulse 3.6s ease-in-out infinite;
 }
 .map-pin.is-regional .pin-core {
   box-shadow: 0 0 0 7px rgba(167, 101, 67, 0.17);
@@ -723,6 +719,33 @@ summary:focus-visible {
   box-shadow:
     0 0 0 11px rgba(167, 101, 67, 0.29),
     0 0 0 20px rgba(167, 101, 67, 0.13);
+  animation-name: selected-regional-halo-pulse;
+}
+@keyframes selected-halo-pulse {
+  0%,
+  100% {
+    box-shadow:
+      0 0 0 9px rgba(167, 101, 67, 0.32),
+      0 0 0 18px rgba(167, 101, 67, 0.13);
+  }
+  50% {
+    box-shadow:
+      0 0 0 11px rgba(167, 101, 67, 0.24),
+      0 0 0 21px rgba(167, 101, 67, 0.08);
+  }
+}
+@keyframes selected-regional-halo-pulse {
+  0%,
+  100% {
+    box-shadow:
+      0 0 0 11px rgba(167, 101, 67, 0.29),
+      0 0 0 20px rgba(167, 101, 67, 0.13);
+  }
+  50% {
+    box-shadow:
+      0 0 0 13px rgba(167, 101, 67, 0.22),
+      0 0 0 23px rgba(167, 101, 67, 0.08);
+  }
 }
 .pin-word {
   background: rgba(24, 52, 56, 0.78);
@@ -886,8 +909,9 @@ summary:focus-visible {
   .site-header {
     padding: 21px 22px;
   }
-  .brand {
-    font-size: 16px;
+  .brand img {
+    width: min(150px, 36vw);
+    height: auto;
   }
   .explore-button {
     padding: 9px 12px;
@@ -1069,6 +1093,9 @@ summary:focus-visible {
   }
   .intro-card-wrap {
     transform: scale(1) !important;
+  }
+  .map-pin.is-active .pin-core {
+    animation: none !important;
   }
 }
 /* Final composition and no-map editorial illustration. */

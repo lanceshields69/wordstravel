@@ -1,4 +1,4 @@
-# Word Caravan intro images
+# Words Travel intro images
 
 Twelve selected historical images for the word-selection carousel. Dates below are dates of images or objects, not linguistic arrival dates. Source pages identify these images as public domain. Each source’s recorded rights and original image URL are retained in the manifest.
 

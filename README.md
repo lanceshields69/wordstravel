@@ -1,4 +1,4 @@
-# Word Caravan
+# Words Travel
 
 **Every word has a journey.** A local, front-end atlas for twelve familiar English words. Select an image card, then follow its sourced chapters through a live globe or the chapter list.
 
@@ -38,6 +38,6 @@ Historical dates and coordinates are qualified in each chapter. Pins are editori
 
 Pronunciation uses browser `speechSynthesis` only when the device offers a matching language voice. Readings are modern illustrations, not verified historical pronunciations or recorded native-speaker audio. Ancient/specialist forms and languages without a suitable voice show an unavailable state. The adapter in `src/pronunciation.ts` can later be replaced with reviewed audio. The browser voice list and playback can vary by device.
 
-Share a specific chapter with `/?word=magazine&stop=magazine-arabic` (using actual IDs in the JSON). The URL is updated as readers change chapters; Browser Back and Explore words restore the shelf. The phone layout offers swipe browsing and a collapsible story sheet, and reduced-motion preferences stop automatic shelf and globe movement.
+Share a specific chapter with `/?word=magazine&stop=magazine-arabic` (using actual IDs in the JSON). The URL is updated as readers change chapters; Browser Back and Explore more words restore the shelf. The phone layout offers swipe browsing and a collapsible story sheet, and reduced-motion preferences stop automatic shelf and globe movement.
 
 On the home screen the globe rotates slowly behind the word shelf. It pauses for direct map interaction, while opening a journey stops the idle rotation; returning to the shelf resumes it.
