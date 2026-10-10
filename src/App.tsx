@@ -11,9 +11,23 @@ import {
 import Globe from "./Globe";
 import JourneyCard from "./JourneyCard";
 import WordCarousel from "./WordCarousel";
+import { browserPronunciation } from "./pronunciation";
 
 type Phase = "browse" | "leaving" | "journey";
 type Selection = { wordId: string | null; cardId: string | null };
+type WordMotion = "idle" | "leaving" | "arriving";
+const AUDIO_PREFERENCE_KEY = "words-travel-audio-enabled";
+const CHAPTER_FADE_MS = 170;
+const WORD_EXIT_MS = 260;
+const WORD_ARRIVAL_MS = 620;
+
+function savedAudioPreference(): boolean {
+  try {
+    return localStorage.getItem(AUDIO_PREFERENCE_KEY) !== "false";
+  } catch {
+    return true;
+  }
+}
 
 function selectionFromUrl(): Selection {
   const params = new URLSearchParams(location.search);
@@ -118,6 +132,9 @@ export default function App() {
     "ready" | "missing" | "error" | "loading"
   >("loading");
   const [recenterKey, setRecenterKey] = useState(0);
+  const [chapterLeaving, setChapterLeaving] = useState(false);
+  const [wordMotion, setWordMotion] = useState<WordMotion>("idle");
+  const [audioEnabled, setAudioEnabled] = useState(savedAudioPreference);
   const transitionTimer = useRef<number | null>(null);
   const creditOrigin = useRef<HTMLElement | null>(null);
   const reducedMotion = useRef(
@@ -129,6 +146,24 @@ export default function App() {
     ? (journeyById.get(selection.wordId) ?? null)
     : null;
   const card = journey ? cardFor(journey, selection.cardId) : null;
+  const nextJourney = journey
+    ? journeys[(journeys.findIndex((item) => item.id === journey.id) + 1) % journeys.length]
+    : null;
+
+  useEffect(() => {
+    browserPronunciation.setEnabled(audioEnabled);
+    try {
+      localStorage.setItem(AUDIO_PREFERENCE_KEY, String(audioEnabled));
+    } catch {
+      // Playback still works when storage is unavailable.
+    }
+  }, [audioEnabled]);
+
+  const toggleAudio = () => {
+    const next = !audioEnabled;
+    browserPronunciation.setEnabled(next);
+    setAudioEnabled(next);
+  };
 
   const cancelTransition = () => {
     if (transitionTimer.current !== null) {
@@ -140,6 +175,8 @@ export default function App() {
     const next = journeyById.get(id);
     if (!next) return;
     cancelTransition();
+    setChapterLeaving(false);
+    setWordMotion("idle");
     previousCard.current = id;
     setSelectedWord(id);
     setSelection({ wordId: id, cardId: next.cards[0].id });
@@ -160,14 +197,30 @@ export default function App() {
         : undefined;
       if (!current?.cards.some((c) => c.id === id)) return;
       cancelTransition();
-      setSelection({ wordId: current.id, cardId: id });
-      setPhase("journey");
-      history.replaceState({}, "", urlFor(current.id, id));
+      setWordMotion("idle");
+      if (id === selection.cardId) {
+        setChapterLeaving(false);
+        return;
+      }
+      const showChapter = () => {
+        setSelection({ wordId: current.id, cardId: id });
+        setChapterLeaving(false);
+        setPhase("journey");
+        history.replaceState({}, "", urlFor(current.id, id));
+        transitionTimer.current = null;
+      };
+      if (reducedMotion.current) showChapter();
+      else {
+        setChapterLeaving(true);
+        transitionTimer.current = window.setTimeout(showChapter, CHAPTER_FADE_MS);
+      }
     },
-    [selection.wordId],
+    [selection.wordId, selection.cardId],
   );
   const browse = () => {
     cancelTransition();
+    setChapterLeaving(false);
+    setWordMotion("idle");
     setPhase("browse");
     setSelection({ wordId: null, cardId: null });
     history.pushState({}, "", urlFor(null, null));
@@ -182,13 +235,38 @@ export default function App() {
     );
   };
   const nextWord = () => {
-    const index = journeys.findIndex((j) => j.id === journey?.id);
-    openWord(journeys[(index + 1) % journeys.length].id);
+    if (!nextJourney) return;
+    const next = nextJourney;
+    const showWord = () => {
+      previousCard.current = next.id;
+      setSelectedWord(next.id);
+      setSelection({ wordId: next.id, cardId: next.cards[0].id });
+      history.pushState({}, "", urlFor(next.id, next.cards[0].id));
+      if (reducedMotion.current) {
+        setWordMotion("idle");
+        transitionTimer.current = null;
+      } else {
+        setWordMotion("arriving");
+        transitionTimer.current = window.setTimeout(() => {
+          setWordMotion("idle");
+          transitionTimer.current = null;
+        }, WORD_ARRIVAL_MS);
+      }
+    };
+    cancelTransition();
+    setChapterLeaving(false);
+    if (reducedMotion.current) showWord();
+    else {
+      setWordMotion("leaving");
+      transitionTimer.current = window.setTimeout(showWord, WORD_EXIT_MS);
+    }
   };
 
   useEffect(() => {
     const pop = () => {
       cancelTransition();
+      setChapterLeaving(false);
+      setWordMotion("idle");
       const next = selectionFromUrl();
       setSelection(next);
       setPhase(next.wordId ? "journey" : "browse");
@@ -214,7 +292,7 @@ export default function App() {
     if (phase !== "journey") return;
     const timer = window.setTimeout(
       () => document.getElementById("story-heading")?.focus(),
-      60,
+      reducedMotion.current ? 60 : 250,
     );
     return () => window.clearTimeout(timer);
   }, [phase, card?.id]);
@@ -262,6 +340,26 @@ export default function App() {
           </button>
         )}
       </header>
+      {phase !== "browse" && (
+        <button
+          className={`audio-toggle${audioEnabled ? "" : " is-off"}`}
+          type="button"
+          onClick={toggleAudio}
+          aria-pressed={audioEnabled}
+          aria-label={`Audio ${audioEnabled ? "on. Turn audio off" : "off. Turn audio on"}`}
+          title={audioEnabled ? "Turn pronunciation audio off" : "Turn pronunciation audio on"}
+        >
+          <svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
+            <path d="M3 8h3l4-3v10l-4-3H3V8Z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />
+            {audioEnabled ? (
+              <path d="M13 7c1.5 1.5 1.5 4.5 0 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+            ) : (
+              <path d="M3 3l14 14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+            )}
+          </svg>
+          <span>Audio {audioEnabled ? "on" : "off"}</span>
+        </button>
+      )}
       <div className="browse-content" aria-hidden={phase !== "browse"}>
         <div className="hero-copy">
           <p className="hero-kicker">A living atlas of language</p>
@@ -282,9 +380,13 @@ export default function App() {
       />
       {phase === "journey" && journey && card && (
         <JourneyCard
-          key={card.id}
+          key={journey.id}
           journey={journey}
           card={card}
+          chapterLeaving={chapterLeaving}
+          wordMotion={wordMotion}
+          audioEnabled={audioEnabled}
+          nextWordName={nextJourney?.current_english_word ?? ""}
           onSelect={selectCard}
           onNextWord={nextWord}
           onRecenter={() => setRecenterKey((k) => k + 1)}
@@ -323,6 +425,18 @@ export default function App() {
           </span>
           <strong>{journey.current_english_word}</strong>
         </div>
+      )}
+      {phase === "journey" && nextJourney && wordMotion === "idle" && (
+        <button
+          className="next-word-preview"
+          type="button"
+          onClick={nextWord}
+          aria-label={`Next word: ${nextJourney.current_english_word}`}
+        >
+          <span>Next word:</span>
+          <strong>{nextJourney.current_english_word}</strong>
+          <span className="next-word-preview-arrow" aria-hidden="true">→</span>
+        </button>
       )}
       {(mapStatus === "missing" || mapStatus === "error") && (
         <div className="map-status" role="status">

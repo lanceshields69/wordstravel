@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { Card, Journey } from "./content";
 import { browserPronunciation, matchingVoice } from "./pronunciation";
 
@@ -7,8 +7,18 @@ type Props = {
   card: Card;
   onSelect: (id: string) => void;
   onNextWord: () => void;
+  nextWordName: string;
   onRecenter: () => void;
   mapAvailable: boolean;
+  chapterLeaving: boolean;
+  wordMotion: "idle" | "leaving" | "arriving";
+  audioEnabled: boolean;
+};
+
+type Presentation = {
+  cardId: string;
+  reading: "waiting" | "speaking" | "done";
+  detailsVisible: boolean;
 };
 
 function ScriptWord({ card }: { card: Card }) {
@@ -28,7 +38,19 @@ function ScriptWord({ card }: { card: Card }) {
   );
 }
 
-function PronunciationButton({ card }: { card: Card }) {
+function PronunciationButton({
+  card,
+  audioEnabled,
+  autoPlayReady,
+  onPlaybackStart,
+  onPlaybackDone,
+}: {
+  card: Card;
+  audioEnabled: boolean;
+  autoPlayReady: boolean;
+  onPlaybackStart: (durationMs: number) => void;
+  onPlaybackDone: () => void;
+}) {
   const generation = card.pronunciation.generation;
   const language = generation.language;
   const hasAudio = Boolean(
@@ -39,8 +61,15 @@ function PronunciationButton({ card }: { card: Card }) {
   const [voices, setVoices] = useState<SpeechSynthesisVoice[]>([]);
   const [checking, setChecking] = useState(Boolean(language) && !hasAudio);
   const [message, setMessage] = useState<string | null>(null);
+  const [playback, setPlayback] = useState<"idle" | "starting" | "playing">("idle");
+  const buttonRef = useRef<HTMLButtonElement>(null);
+  const autoPlayed = useRef(false);
 
   useEffect(() => () => browserPronunciation.stop(), []);
+
+  useEffect(() => {
+    if (!autoPlayReady) browserPronunciation.stop();
+  }, [autoPlayReady]);
 
   useEffect(() => {
     if (!language || hasAudio) return;
@@ -78,7 +107,9 @@ function PronunciationButton({ card }: { card: Card }) {
     () => matchingVoice(voices, language),
     [language, voices],
   );
-  const reason = !language && !hasAudio
+  const reason = !audioEnabled
+    ? "Audio is off. Use the Audio off control above the globe to turn it on."
+    : !language && !hasAudio
     ? "Reading awaits review."
     : hasAudio
       ? null
@@ -88,18 +119,45 @@ function PronunciationButton({ card }: { card: Card }) {
           ? `No ${language} voice is available on this device.`
           : null;
 
+  useEffect(() => {
+    if (
+      !audioEnabled ||
+      !autoPlayReady ||
+      autoPlayed.current ||
+      (!hasAudio && (!language || checking))
+    ) return;
+    const timer = window.setTimeout(() => {
+      if (autoPlayed.current) return;
+      autoPlayed.current = true;
+      buttonRef.current?.click();
+    }, 300);
+    return () => window.clearTimeout(timer);
+  }, [audioEnabled, autoPlayReady, checking, hasAudio, language]);
+
   return (
     <div className="pronunciation-wrap">
       <button
+        ref={buttonRef}
         type="button"
-        className="pronunciation-button"
+        className={`pronunciation-button${playback === "playing" ? " is-playing" : ""}${playback === "starting" ? " is-starting" : ""}`}
+        disabled={!audioEnabled}
         onClick={() => {
+          autoPlayed.current = true;
+          if (!audioEnabled) return;
+          if (playback !== "idle") {
+            browserPronunciation.stop();
+            setPlayback("idle");
+            onPlaybackDone();
+            return;
+          }
           if (!language && !hasAudio) {
             setMessage("Reading awaits review.");
+            onPlaybackDone();
             return;
           }
           if (!hasAudio && !speechSupported) {
             setMessage("This browser does not support speech playback.");
+            onPlaybackDone();
             return;
           }
           // Recheck at click time: a voice may appear or disappear after loading.
@@ -113,20 +171,37 @@ function PronunciationButton({ card }: { card: Card }) {
                 ? "Still checking for a matching voice on this device."
                 : `No ${language} voice is available on this device.`,
             );
+            onPlaybackDone();
             return;
           }
           setChecking(false);
           if (!hasAudio) setVoices(browserPronunciation.voices());
           setMessage(null);
+          setPlayback("starting");
           browserPronunciation.speak(
             card,
             currentVoice,
-            () => setMessage(null),
-            setMessage,
+            () => {
+              setPlayback("idle");
+              onPlaybackDone();
+            },
+            (error) => {
+              setPlayback("idle");
+              setMessage(error);
+              onPlaybackDone();
+            },
+            (durationMs) => {
+              setPlayback("playing");
+              onPlaybackStart(durationMs);
+            },
           );
         }}
         aria-label={
-          reason
+          playback === "playing"
+            ? `Stop pronunciation of ${generation.text}`
+            : playback === "starting"
+              ? `Stop loading pronunciation of ${generation.text}`
+              : reason
             ? `Pronunciation unavailable for ${card.spelling}. ${reason}`
             : checking && !hasAudio
               ? "Checking pronunciation availability"
@@ -134,10 +209,15 @@ function PronunciationButton({ card }: { card: Card }) {
                 ? `Play recorded pronunciation of ${generation.text}. ${generation.label}`
                 : `Play modern illustrative pronunciation of ${generation.text}${voice ? ` using ${voice.lang}` : ""}`
         }
+        aria-pressed={playback !== "idle"}
         aria-expanded={reason ? Boolean(message) : undefined}
-        title={reason ?? (hasAudio ? generation.label : voice ? `Hear a modern reading (${voice.lang} voice)` : "Hear a reading")}
+        title={playback !== "idle" ? "Stop pronunciation" : reason ?? (hasAudio ? generation.label : voice ? `Hear a modern reading (${voice.lang} voice)` : "Hear a reading")}
       >
-        <img src="/icons/pronunciation.svg" alt="" aria-hidden="true" />
+        {playback === "playing" ? (
+          <span className="pronunciation-stop-icon" aria-hidden="true" />
+        ) : (
+          <img src="/icons/pronunciation.svg" alt="" aria-hidden="true" />
+        )}
       </button>
       {message && (
         <span className="pronunciation-note" role="status">
@@ -153,19 +233,69 @@ export default function JourneyCard({
   card,
   onSelect,
   onNextWord,
+  nextWordName,
   onRecenter,
   mapAvailable,
+  chapterLeaving,
+  wordMotion,
+  audioEnabled,
 }: Props) {
   const index = journey.cards.findIndex((item) => item.id === card.id);
   const [expanded, setExpanded] = useState(true);
+  const [presentation, setPresentation] = useState<Presentation>({
+    cardId: card.id,
+    reading: "waiting",
+    detailsVisible: false,
+  });
+  const [typingMs, setTypingMs] = useState(1000);
+  const currentPresentation: Presentation =
+    presentation.cardId === card.id
+      ? presentation
+      : { cardId: card.id, reading: "waiting", detailsVisible: false };
+  const generation = card.pronunciation.generation;
+  const hasPotentialReading = Boolean(
+    generation.language ||
+      (generation.audio_url && generation.owner_approved_audio),
+  );
   const related = journey.edges.filter(
     (edge) => edge.from === card.id || edge.to === card.id,
   );
   const chapterNumber = String(index + 1).padStart(2, "0");
+  const isLastChapter = index === journey.cards.length - 1;
+
+  useEffect(() => {
+    if (currentPresentation.detailsVisible) return;
+    // Reveal the chapter even if a browser never starts or finishes playback.
+    const delay =
+      currentPresentation.reading === "speaking"
+        ? 2600
+        : audioEnabled && hasPotentialReading
+          ? 1400
+          : 450;
+    const timer = window.setTimeout(() => {
+      setPresentation((previous) => {
+        const current = previous.cardId === card.id
+          ? previous
+          : { cardId: card.id, reading: "waiting" as const, detailsVisible: false };
+        return {
+          ...current,
+          reading: current.reading === "waiting" ? "done" : current.reading,
+          detailsVisible: true,
+        };
+      });
+    }, delay);
+    return () => window.clearTimeout(timer);
+  }, [
+    card.id,
+    currentPresentation.detailsVisible,
+    currentPresentation.reading,
+    audioEnabled,
+    hasPotentialReading,
+  ]);
 
   return (
     <section
-      className={`story-panel${expanded ? "" : " is-collapsed"}`}
+      className={`story-panel${expanded ? "" : " is-collapsed"}${chapterLeaving ? " is-chapter-leaving" : ""}${wordMotion === "idle" ? "" : ` is-word-${wordMotion}`}`}
       aria-label={`${journey.current_english_word} journey`}
     >
       <div className="story-topbar">
@@ -183,7 +313,10 @@ export default function JourneyCard({
       </div>
       {expanded && (
         <>
-          <div className="story-scroll">
+          <div
+            className={`story-scroll is-audio-${currentPresentation.reading}${currentPresentation.detailsVisible ? " is-details-visible" : ""}`}
+            key={card.id}
+          >
             <div className="journey-card-meta">
               <span>{card.location.label}</span>
               <span>
@@ -195,12 +328,38 @@ export default function JourneyCard({
             <div className="journey-card-word-row">
               <div className="journey-card-word-stack">
                 <ScriptWord card={card} />
-                <p className="journey-card-pronunciation" dir="ltr">
+                <p
+                  className="journey-card-pronunciation"
+                  dir="ltr"
+                  style={{
+                    animationDuration: `${typingMs}ms`,
+                    animationTimingFunction: `steps(${Math.max(1, Array.from(card.pronunciation.display ?? "").length)}, end)`,
+                  }}
+                >
                   {card.pronunciation.display}
                 </p>
               </div>
-              <PronunciationButton key={card.id} card={card} />
+              <PronunciationButton
+                key={`${card.id}-${audioEnabled}`}
+                card={card}
+                audioEnabled={audioEnabled}
+                autoPlayReady={wordMotion === "idle" && !chapterLeaving}
+                onPlaybackStart={(durationMs) => {
+                  setTypingMs(durationMs);
+                  setPresentation((previous) => ({
+                    cardId: card.id,
+                    reading: "speaking",
+                    detailsVisible: previous.cardId === card.id && previous.detailsVisible,
+                  }));
+                }}
+                onPlaybackDone={() => setPresentation({
+                  cardId: card.id,
+                  reading: "done",
+                  detailsVisible: true,
+                })}
+              />
             </div>
+            <div className="journey-card-details">
             <div className="journey-card-subline">
               <span className="journey-language">{card.language}</span>
               <span className="journey-subline-rule" aria-hidden="true" />
@@ -287,6 +446,7 @@ export default function JourneyCard({
                 )}
               </div>
             </details>
+            </div>
           </div>
           <nav className="story-footer" aria-label="Journey chapters">
             <button
@@ -318,7 +478,7 @@ export default function JourneyCard({
               </div>
             </div>
             <button
-              className="journey-nav-arrow"
+              className={`journey-nav-arrow${isLastChapter ? " journey-nav-next-word" : ""}`}
               type="button"
               onClick={() =>
                 index < journey.cards.length - 1
@@ -328,9 +488,10 @@ export default function JourneyCard({
               aria-label={
                 index < journey.cards.length - 1
                   ? `Next chapter: ${journey.cards[index + 1].spelling}`
-                  : "Explore another word"
+                  : `Next word: ${nextWordName}`
               }
             >
+              {isLastChapter && <span>Next word</span>}
               <img src="/icons/next.svg" alt="" aria-hidden="true" />
             </button>
           </nav>

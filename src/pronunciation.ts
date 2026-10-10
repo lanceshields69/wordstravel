@@ -2,6 +2,10 @@ import type { Card } from "./content";
 
 const START_TIMEOUT_MS = 8000;
 
+function estimatedReadingMs(text: string): number {
+  return Math.max(700, Math.min(2600, Array.from(text).length * 140));
+}
+
 export function matchingVoice(
   voices: SpeechSynthesisVoice[],
   language: string | null,
@@ -41,12 +45,15 @@ export interface PronunciationService {
     voice: SpeechSynthesisVoice | null,
     onEnd: () => void,
     onError: (message: string) => void,
+    onStart?: (durationMs: number) => void,
   ): void;
   stop(): void;
+  setEnabled(enabled: boolean): void;
 }
 
 let playbackId = 0;
 let cancelPlayback: (() => void) | null = null;
+let playbackEnabled = true;
 
 export const browserPronunciation: PronunciationService = {
   voices: () =>
@@ -56,8 +63,12 @@ export const browserPronunciation: PronunciationService = {
   voiceFor(language) {
     return matchingVoice(this.voices(), language);
   },
-  speak(card, voice, onEnd, onError) {
+  speak(card, voice, onEnd, onError, onStart) {
     this.stop();
+    if (!playbackEnabled) {
+      onError("Audio is off. Turn it on above the globe to hear pronunciations.");
+      return;
+    }
     const id = playbackId;
     const generation = card.pronunciation.generation;
     // Historical cards cannot use browser TTS. A content-owner-approved file
@@ -95,8 +106,15 @@ export const browserPronunciation: PronunciationService = {
         } else onEnd();
       };
       audio.onplaying = () => {
-        started = true;
-        window.clearTimeout(timer);
+        if (!started) {
+          started = true;
+          window.clearTimeout(timer);
+          onStart?.(
+            Number.isFinite(audio.duration) && audio.duration > 0
+              ? audio.duration * 1000
+              : estimatedReadingMs(generation.text),
+          );
+        }
       };
       audio.onended = () =>
         finish(started ? undefined : "Audio did not start on this device.");
@@ -108,7 +126,13 @@ export const browserPronunciation: PronunciationService = {
         audio.onerror = null;
         audio.pause();
       };
-      void audio.play().catch(() => finish("This audio file could not be played."));
+      void audio.play().catch((error: unknown) =>
+        finish(
+          error && typeof error === "object" && "name" in error && error.name === "NotAllowedError"
+            ? "This browser blocked audio playback. Tap the pronunciation button to retry."
+            : "This audio file could not be played.",
+        ),
+      );
       return;
     }
 
@@ -156,8 +180,11 @@ export const browserPronunciation: PronunciationService = {
       } else onEnd();
     };
     utterance.onstart = () => {
-      started = true;
-      window.clearTimeout(timer);
+      if (!started) {
+        started = true;
+        window.clearTimeout(timer);
+        onStart?.(estimatedReadingMs(generation.text));
+      }
     };
     utterance.onend = () =>
       finish(started ? undefined : "The selected voice did not start on this device.");
@@ -180,5 +207,9 @@ export const browserPronunciation: PronunciationService = {
     cancelPlayback = null;
     if (typeof window !== "undefined" && "speechSynthesis" in window)
       window.speechSynthesis.cancel();
+  },
+  setEnabled(enabled) {
+    playbackEnabled = enabled;
+    if (!enabled) this.stop();
   },
 };

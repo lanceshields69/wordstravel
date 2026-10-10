@@ -11,12 +11,38 @@ const card = (id: string) =>
   journeys.flatMap((journey) => journey.cards).find((item) => item.id === id)!;
 
 afterEach(() => {
+  browserPronunciation.setEnabled(true);
   browserPronunciation.stop();
   vi.unstubAllGlobals();
   vi.useRealTimers();
 });
 
 describe("pronunciation playback", () => {
+  it("stops current audio and blocks new playback while audio is off", async () => {
+    const greek = card("typhoon-greek");
+    class AudioMock {
+      static latest: AudioMock;
+      onplaying: (() => void) | null = null;
+      onended: (() => void) | null = null;
+      onerror: (() => void) | null = null;
+      pause = vi.fn();
+      play = vi.fn(async () => { this.onplaying?.(); });
+      constructor(public src: string) { AudioMock.latest = this; }
+    }
+    vi.stubGlobal("window", { setTimeout, clearTimeout });
+    vi.stubGlobal("Audio", AudioMock);
+    const start = vi.fn();
+    browserPronunciation.speak(greek, null, vi.fn(), vi.fn(), start);
+    await Promise.resolve();
+    expect(start).toHaveBeenCalledOnce();
+    browserPronunciation.setEnabled(false);
+    expect(AudioMock.latest.pause).toHaveBeenCalledOnce();
+    const error = vi.fn();
+    browserPronunciation.speak(greek, null, vi.fn(), error);
+    expect(error).toHaveBeenCalledWith(expect.stringContaining("Audio is off"));
+    expect(AudioMock.latest.play).toHaveBeenCalledOnce();
+  });
+
   it("requires the requested region and never substitutes an unrelated voice", () => {
     expect(matchingVoice([voice("en-US")], "en-GB")).toBeNull();
     expect(matchingVoice([voice("fa-IR")], "ar")).toBeNull();
@@ -60,8 +86,10 @@ describe("pronunciation playback", () => {
     vi.stubGlobal("Audio", AudioMock);
     const end = vi.fn();
     const error = vi.fn();
-    browserPronunciation.speak(greek, null, end, error);
+    const start = vi.fn();
+    browserPronunciation.speak(greek, null, end, error, start);
     await Promise.resolve();
+    expect(start).toHaveBeenCalledOnce();
     expect(end).toHaveBeenCalledOnce();
     expect(error).not.toHaveBeenCalled();
   });
@@ -123,7 +151,10 @@ describe("pronunciation playback", () => {
       },
     };
     const error = vi.fn();
-    browserPronunciation.speak(browserCard, selectedVoice, vi.fn(), error);
+    const start = vi.fn();
+    browserPronunciation.speak(browserCard, selectedVoice, vi.fn(), error, start);
+    spoken!.onstart?.();
+    expect(start).toHaveBeenCalledOnce();
     spoken!.onerror?.({ error: "voice-unavailable" });
     expect(error).toHaveBeenCalledWith(
       "The selected voice is unavailable on this device.",
@@ -164,8 +195,10 @@ describe("pronunciation playback", () => {
     } as Card;
     const end = vi.fn();
     const error = vi.fn();
-    browserPronunciation.speak(withAudio, null, end, error);
+    const start = vi.fn();
+    browserPronunciation.speak(withAudio, null, end, error, start);
     await Promise.resolve();
+    expect(start).toHaveBeenCalledOnce();
     expect(end).toHaveBeenCalledOnce();
     expect(error).not.toHaveBeenCalled();
     expect(speechErrorMessage("voice-unavailable")).toContain("unavailable");
