@@ -1,17 +1,8 @@
-# Word Caravan build handoff
+# Words Travel build handoff
 
-This is the build prompt and prepared content, not an implemented application.
+This folder contains the original build prompt and prepared content for Words Travel. The app is implemented in this repository; use [README.md](README.md) for setup and checks.
 
-## Start in VS Code
-
-1. Extract this bundle somewhere accessible to VS Code.
-2. Open `/Users/lanceshields/Documents/Coding/word caravan` in VS Code.
-3. Give Codex `BUILD_PROMPT.md` and the absolute path of this extracted handoff directory. Ask it to follow the prompt and build the MVP in the intended folder, using the repository at https://github.com/lanceshields69/wordcaravan.
-4. Let Codex inspect the folder and repository before importing the handoff files. Do not replace an existing checkout wholesale with this directory.
-
-Suggested initial message:
-
-> Read the attached BUILD_PROMPT.md and implement it end to end. The prepared assets and content are in the unzipped word-caravan-build-handoff folder at [insert its absolute path]. Build in /Users/lanceshields/Documents/Coding/word caravan using https://github.com/lanceshields69/wordcaravan. Preserve existing work, run the app and relevant checks, and show desktop/mobile screenshots of the result.
+Production domain: [wordstravel.app](https://wordstravel.app/). GitHub repository: [lanceshields69/wordstravel](https://github.com/lanceshields69/wordstravel).
 
 ## Inputs
 
@@ -31,5 +22,3 @@ Mapbox GL JS v3 is the intended globe renderer. A public browser Mapbox token is
 Generated pronunciation can use browser speech synthesis for supported modern-language readings. Voices vary by device. No reviewed audio files or per-stop illustrations have been produced. Ancient/specialist readings remain pending. Unknown dates, approximate coordinates and proposed relationships are deliberately preserved in the data.
 
 Historical intro images are supplied for all 12 words; their dates describe artworks/objects, not word arrivals. Ketchup and typhoon have lower-resolution sources. Preserve their source credits and context.
-
-This chat session could not access the requested Documents directory, including after elevated access was attempted. No files in that project folder or the GitHub repository were changed. The complete handoff was packaged in the chat workspace instead.
