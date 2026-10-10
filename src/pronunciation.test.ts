@@ -59,6 +59,7 @@ describe("pronunciation playback", () => {
         generation: {
           ...restricted.pronunciation.generation,
           audio_url: "/audio/unreviewed.mp3",
+          owner_approved_audio: false,
         },
       },
     } as Card;

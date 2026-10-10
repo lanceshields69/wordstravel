@@ -5133,12 +5133,13 @@
             "generation": {
               "language": null,
               "text": "शून्य",
-              "label": "Specialist reading required; generation pending",
+              "label": "Owner-approved Sanskrit recording; historical source details pending",
               "prompt": "Read only 'शून्य' in Sanskrit. No introduction. This is an illustrative reading, not a historical reconstruction.",
-              "status": "not_generated",
-              "audio_url": null,
-              "review_required": true,
-              "provider": "not selected"
+              "status": "user_recorded",
+              "audio_url": "/audio/zero/zero-sanskrit.mp3?v=2217be06",
+              "owner_approved_audio": true,
+              "review_required": false,
+              "provider": "user recording"
             }
           },
           "visual": {
@@ -5420,12 +5421,13 @@
             "generation": {
               "language": null,
               "text": "zephirum",
-              "label": "Specialist reading required; generation pending",
+              "label": "Owner-approved Medieval Latin recording; historical source details pending",
               "prompt": "Read only 'zephirum' in Medieval Latin. No introduction. This is an illustrative reading, not a historical reconstruction.",
-              "status": "not_generated",
-              "audio_url": null,
-              "review_required": true,
-              "provider": "not selected"
+              "status": "user_recorded",
+              "audio_url": "/audio/zero/zero-latin.mp3?v=7af2300d",
+              "owner_approved_audio": true,
+              "review_required": false,
+              "provider": "user recording"
             }
           },
           "visual": {
@@ -6171,12 +6173,13 @@
             "generation": {
               "language": null,
               "text": "algorismus",
-              "label": "Specialist reading required; generation pending",
+              "label": "Owner-approved Medieval Latin recording; historical source details pending",
               "prompt": "Read only 'algorismus' in Medieval Latin. No introduction. This is an illustrative reading, not a historical reconstruction.",
-              "status": "not_generated",
-              "audio_url": null,
-              "review_required": true,
-              "provider": "not selected"
+              "status": "user_recorded",
+              "audio_url": "/audio/algorithm/algorithm-latin.mp3?v=defbc844",
+              "owner_approved_audio": true,
+              "review_required": false,
+              "provider": "user recording"
             }
           },
           "visual": {
