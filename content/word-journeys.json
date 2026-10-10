@@ -3080,12 +3080,12 @@
             "generation": {
               "language": "ar",
               "text": "مخازن",
-              "label": "Generated modern pronunciation; review pending",
+              "label": "User-recorded modern Arabic reading; listening review pending",
               "prompt": "Read only 'مخازن' in ar. No introduction. This is an illustrative reading, not a historical reconstruction.",
-              "status": "not_generated",
-              "audio_url": null,
+              "status": "user_recorded",
+              "audio_url": "/audio/magazine/magazine-arabic.mp3?v=07b8310b",
               "review_required": true,
-              "provider": "not selected"
+              "provider": "user recording"
             }
           },
           "visual": {
