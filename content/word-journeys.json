@@ -8163,7 +8163,7 @@
               "label": "User-recorded modern Arabic reading; listening review pending",
               "prompt": "Read only 'طوفان' in ar. No introduction. This is an illustrative reading, not a historical reconstruction.",
               "status": "user_recorded",
-              "audio_url": "/audio/typhoon/typhoon-arabic.mp3?v=d5566b65",
+              "audio_url": "/audio/typhoon/typhoon-arabic.mp3?v=a52aeb41",
               "review_required": true,
               "provider": "user recording"
             }
