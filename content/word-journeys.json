@@ -6578,12 +6578,12 @@
             "generation": {
               "language": "ar",
               "text": "قهوة",
-              "label": "Generated modern pronunciation; review pending",
+              "label": "User-recorded modern Arabic reading; listening review pending",
               "prompt": "Read only 'قهوة' in ar. No introduction. This is an illustrative reading, not a historical reconstruction.",
-              "status": "not_generated",
-              "audio_url": null,
+              "status": "user_recorded",
+              "audio_url": "/audio/coffee/coffee-arabic.mp3?v=611a018d",
               "review_required": true,
-              "provider": "not selected"
+              "provider": "user recording"
             }
           },
           "visual": {
@@ -6679,12 +6679,12 @@
             "generation": {
               "language": "tr-TR",
               "text": "kahve",
-              "label": "Generated modern-language reading of historical form; not a reconstruction",
+              "label": "User-recorded modern Turkish reading; historical reading unverified",
               "prompt": "Read only 'kahve' in tr-TR. No introduction. This is an illustrative reading, not a historical reconstruction.",
-              "status": "not_generated",
-              "audio_url": null,
+              "status": "user_recorded",
+              "audio_url": "/audio/coffee/coffee-turkish.mp3?v=72ea0f67",
               "review_required": true,
-              "provider": "not selected"
+              "provider": "user recording"
             }
           },
           "visual": {
