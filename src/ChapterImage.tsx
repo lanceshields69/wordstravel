@@ -86,12 +86,6 @@ export default function ChapterImage({ image }: { image: ChapterImageRecord }) {
             <dd><a href={image.license_url} target="_blank" rel="noopener noreferrer">{image.license}</a></dd>
           </div>
         </dl>
-        <p>{image.context_note}</p>
-        <p className="chapter-credit-note">
-          Displayed with a CSS portrait crop of the original image. The local source file is unchanged.
-          {" "}{image.license_note}
-        </p>
-        <p className="chapter-credit-note">The image date describes the artwork or photograph, not the date of this word’s journey.</p>
       </dialog>
     </div>
   );

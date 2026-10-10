@@ -15,6 +15,11 @@ import SuggestWordForm from "./SuggestWordForm";
 import JourneyCard from "./JourneyCard";
 import WordCarousel from "./WordCarousel";
 import { browserPronunciation } from "./pronunciation";
+import {
+  rememberOpening,
+  shouldPlayOpening,
+  type OpeningStage,
+} from "./opening";
 
 type Phase = "browse" | "leaving" | "journey";
 type Selection = { wordId: string | null; cardId: string | null };
@@ -23,6 +28,16 @@ const AUDIO_PREFERENCE_KEY = "words-travel-audio-enabled";
 const CHAPTER_FADE_MS = 170;
 const WORD_EXIT_MS = 260;
 const WORD_ARRIVAL_MS = 620;
+
+type OpeningRun = "waiting" | "normal" | "fallback" | "reduced" | "complete";
+
+function sessionStore(): Storage | null {
+  try {
+    return window.sessionStorage;
+  } catch {
+    return null;
+  }
+}
 
 function savedAudioPreference(): boolean {
   try {
@@ -124,8 +139,33 @@ function ImageCredits({
   );
 }
 
+function OpeningOverlay({ stage }: { stage: OpeningStage }) {
+  if (stage === "complete") return null;
+  return (
+    <div className="opening-overlay" data-stage={stage}>
+      <div className="opening-curtain" aria-hidden="true" />
+      <div className="opening-lockup" role="img" aria-label="Words Travel">
+        <img className="opening-mark" src="/images/logomark.svg" alt="" aria-hidden="true" />
+        <span className="opening-wordmark-clip">
+          <img src="/images/logo-type.svg" alt="" aria-hidden="true" />
+        </span>
+      </div>
+    </div>
+  );
+}
+
 export default function App() {
   const [initial] = useState(selectionFromUrl);
+  const reducedMotion = useRef(
+    window.matchMedia("(prefers-reduced-motion: reduce)").matches,
+  );
+  const [openingRun, setOpeningRun] = useState<OpeningRun>(() =>
+    shouldPlayOpening(Boolean(initial.wordId), sessionStore()) ? "waiting" : "complete",
+  );
+  const openingRunRef = useRef(openingRun);
+  const [introStage, setIntroStage] = useState<OpeningStage>(() =>
+    openingRun === "complete" ? "complete" : "waiting",
+  );
   const [selection, setSelection] = useState<Selection>(initial);
   const [phase, setPhase] = useState<Phase>(
     initial.wordId ? "journey" : "browse",
@@ -144,9 +184,6 @@ export default function App() {
   const creditOrigin = useRef<HTMLElement | null>(null);
   const aboutButton = useRef<HTMLButtonElement>(null);
   const suggestOrigin = useRef<HTMLElement | null>(null);
-  const reducedMotion = useRef(
-    window.matchMedia("(prefers-reduced-motion: reduce)").matches,
-  );
   const previousCard = useRef<string | null>(null);
   const [selectedWord, setSelectedWord] = useState<string | null>(null);
   const journey = selection.wordId
@@ -156,6 +193,54 @@ export default function App() {
   const nextJourney = journey
     ? journeys[(journeys.findIndex((item) => item.id === journey.id) + 1) % journeys.length]
     : null;
+
+  const startOpening = useCallback((run: Exclude<OpeningRun, "waiting" | "complete">) => {
+    if (openingRunRef.current !== "waiting") return;
+    openingRunRef.current = run;
+    rememberOpening(sessionStore());
+    setOpeningRun(run);
+    setIntroStage(run === "normal" ? "globe" : run);
+  }, []);
+
+  useEffect(() => {
+    if (openingRun !== "waiting" || phase !== "browse") return;
+    if (reducedMotion.current) startOpening("reduced");
+    else if (mapStatus === "ready") startOpening("normal");
+    else if (mapStatus === "missing" || mapStatus === "error")
+      startOpening("fallback");
+  }, [openingRun, phase, mapStatus, startOpening]);
+
+  useEffect(() => {
+    if (openingRun !== "waiting") return;
+    const timeout = window.setTimeout(() => startOpening("fallback"), 2500);
+    return () => window.clearTimeout(timeout);
+  }, [openingRun, startOpening]);
+
+  useEffect(() => {
+    if (openingRun === "waiting" || openingRun === "complete") return;
+    const timers: number[] = [];
+    const step = (stage: OpeningStage, delay: number) => {
+      timers.push(window.setTimeout(() => setIntroStage(stage), delay));
+    };
+    const finish = (delay: number) => {
+      timers.push(window.setTimeout(() => {
+        openingRunRef.current = "complete";
+        setIntroStage("complete");
+        setOpeningRun("complete");
+      }, delay));
+    };
+    if (openingRun === "normal") {
+      step("mark", 1400);
+      step("wordmark", 1800);
+      step("hold", 2400);
+      step("reveal", 3200);
+      finish(4000);
+    } else {
+      step("reveal", openingRun === "reduced" ? 420 : 600);
+      finish(openingRun === "reduced" ? 720 : 900);
+    }
+    return () => timers.forEach(window.clearTimeout);
+  }, [openingRun]);
 
   useEffect(() => {
     browserPronunciation.setEnabled(audioEnabled);
@@ -181,6 +266,11 @@ export default function App() {
   const openWord = (id: string) => {
     const next = journeyById.get(id);
     if (!next) return;
+    if (openingRunRef.current !== "complete") {
+      openingRunRef.current = "complete";
+      setOpeningRun("complete");
+      setIntroStage("complete");
+    }
     cancelTransition();
     setChapterLeaving(false);
     setWordMotion("idle");
@@ -275,6 +365,11 @@ export default function App() {
       setChapterLeaving(false);
       setWordMotion("idle");
       const next = selectionFromUrl();
+      if (next.wordId && openingRunRef.current !== "complete") {
+        openingRunRef.current = "complete";
+        setOpeningRun("complete");
+        setIntroStage("complete");
+      }
       setSelection(next);
       setPhase(next.wordId ? "journey" : "browse");
       if (!next.wordId)
@@ -331,10 +426,12 @@ export default function App() {
     window.setTimeout(() => suggestOrigin.current?.focus(), 0);
   };
   const mapAvailable = mapStatus === "ready";
+  const introBlocking = phase === "browse" && introStage !== "complete";
+  const introRevealing = introStage === "reveal";
 
   return (
     <>
-    <main className={`app phase-${phase}`}>
+    <main className={`app phase-${phase}${introBlocking ? " opening-home" : ""}${introRevealing ? " opening-home-reveal" : ""}`}>
       <Globe
         journey={journey}
         activeCard={card}
@@ -342,8 +439,10 @@ export default function App() {
         onSelectCard={selectCard}
         recenterKey={recenterKey}
         onStatus={setMapStatus}
+        introStage={introStage}
       />
-      <header className="site-header">
+      <OpeningOverlay stage={phase === "browse" ? introStage : "complete"} />
+      <header className="site-header" inert={introBlocking} aria-hidden={introBlocking}>
         <button
           className="brand"
           type="button"
@@ -403,7 +502,7 @@ export default function App() {
           <span>Audio {audioEnabled ? "on" : "off"}</span>
         </button>
       )}
-      <div className="browse-content" aria-hidden={phase !== "browse"}>
+      <div className="browse-content" aria-hidden={phase !== "browse" || introBlocking}>
         <div className="hero-copy">
           <p className="hero-kicker">A living atlas of language</p>
           <h1>
@@ -416,7 +515,8 @@ export default function App() {
       </div>
       <WordCarousel
         journeys={journeys}
-        active={phase === "browse"}
+        active={phase === "browse" && (!introBlocking || introRevealing)}
+        blocked={introBlocking}
         selectedWord={selectedWord}
         onOpen={openWord}
         onCredit={showCredit}
@@ -483,7 +583,7 @@ export default function App() {
         </button>
       )}
       {(mapStatus === "missing" || mapStatus === "error") && (
-        <div className="map-status" role="status">
+        <div className="map-status" role="status" aria-hidden={introBlocking}>
           <strong>Globe unavailable</strong>
           <span>
             {mapStatus === "missing"
@@ -510,7 +610,7 @@ export default function App() {
       </div>
     </main>
     {phase === "browse" && (
-      <footer className="site-footer">
+      <footer className={`site-footer${introBlocking ? " opening-home" : ""}${introRevealing ? " opening-home-reveal" : ""}`} inert={introBlocking} aria-hidden={introBlocking}>
         <div className="site-footer-inner">
           <img
             className="footer-wordmark"

@@ -80,6 +80,9 @@ summary:focus-visible {
 .globe-veil.is-dim {
   background: rgba(9, 37, 42, 0.56);
 }
+.globe-veil.is-dim.is-intro {
+  background: rgba(9, 37, 42, 0.3);
+}
 .site-header {
   position: relative;
   z-index: 5;
@@ -679,6 +682,7 @@ summary:focus-visible {
   z-index: 2;
   display: flex;
   flex-direction: column;
+  gap: 10px;
   align-items: flex-end;
   color: #e9e9dd;
   text-shadow: 0 2px 15px #0e2b31;
@@ -1754,10 +1758,6 @@ body::-webkit-scrollbar {
 .chapter-credit-dialog a {
   color: #8b5337;
 }
-.chapter-credit-dialog .chapter-credit-note {
-  color: #5c6c65;
-  font-size: 11px;
-}
 .chapter-credit-close {
   position: absolute;
   top: 8px;
@@ -2373,5 +2373,119 @@ body::-webkit-scrollbar {
   }
   .phase-browse .explore-button {
     min-height: 40px;
+  }
+}
+
+/* The opening sits over the existing globe; home assets load underneath it. */
+.opening-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  pointer-events: auto;
+}
+.opening-curtain {
+  position: absolute;
+  inset: 0;
+  background: var(--space);
+  opacity: 1;
+  transition: opacity 1000ms ease;
+}
+.opening-overlay:is([data-stage="globe"], [data-stage="mark"], [data-stage="wordmark"], [data-stage="hold"]) .opening-curtain {
+  opacity: 0;
+}
+.opening-overlay:is([data-stage="fallback"], [data-stage="reduced"]) .opening-curtain {
+  opacity: 0.68;
+  transition-duration: 280ms;
+}
+.opening-overlay[data-stage="reveal"] {
+  opacity: 0;
+  transition: opacity 650ms ease;
+}
+.opening-lockup {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: 33fr 157fr;
+  align-items: center;
+  column-gap: 3.55%;
+  width: min(246px, calc(100vw - 56px));
+}
+.opening-mark,
+.opening-wordmark-clip img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.opening-mark {
+  opacity: 0;
+  transition: opacity 400ms ease;
+}
+.opening-wordmark-clip {
+  display: block;
+  overflow: hidden;
+  opacity: 0;
+  transition: opacity 350ms ease;
+}
+.opening-wordmark-clip img {
+  transform: translateX(-30px);
+  transition: transform 550ms cubic-bezier(0.2, 0.75, 0.25, 1);
+}
+.opening-overlay:is([data-stage="mark"], [data-stage="wordmark"], [data-stage="hold"], [data-stage="fallback"], [data-stage="reduced"], [data-stage="reveal"]) .opening-mark,
+.opening-overlay:is([data-stage="wordmark"], [data-stage="hold"], [data-stage="fallback"], [data-stage="reduced"], [data-stage="reveal"]) .opening-wordmark-clip {
+  opacity: 1;
+}
+.opening-overlay:is([data-stage="wordmark"], [data-stage="hold"], [data-stage="fallback"], [data-stage="reduced"], [data-stage="reveal"]) .opening-wordmark-clip img {
+  transform: translateX(0);
+}
+.opening-overlay:is([data-stage="fallback"], [data-stage="reduced"]) .opening-wordmark-clip img {
+  transition: none;
+}
+.opening-home .site-header,
+.opening-home .browse-content,
+.opening-home .shelf-section,
+.opening-home .map-status,
+.site-footer.opening-home {
+  transition: opacity 440ms ease, transform 440ms ease;
+}
+.opening-home:not(.opening-home-reveal) .site-header,
+.opening-home:not(.opening-home-reveal) .browse-content,
+.opening-home:not(.opening-home-reveal) .shelf-section,
+.opening-home:not(.opening-home-reveal) .map-status,
+.site-footer.opening-home:not(.opening-home-reveal) {
+  opacity: 0;
+  transform: translateY(10px);
+  pointer-events: none;
+}
+.opening-home.opening-home-reveal .browse-content {
+  transition-delay: 110ms;
+}
+.opening-home.opening-home-reveal .shelf-section {
+  transition-delay: 230ms;
+}
+.opening-home.opening-home-reveal .map-status,
+.site-footer.opening-home.opening-home-reveal {
+  transition-delay: 340ms;
+}
+@media (prefers-reduced-motion: reduce) {
+  .opening-curtain,
+  .opening-overlay[data-stage="reveal"],
+  .opening-mark,
+  .opening-wordmark-clip,
+  .opening-home .site-header,
+  .opening-home .browse-content,
+  .opening-home .shelf-section,
+  .opening-home .map-status,
+  .site-footer.opening-home {
+    transition-duration: 200ms;
+  }
+  .opening-home:not(.opening-home-reveal) .site-header,
+  .opening-home:not(.opening-home-reveal) .browse-content,
+  .opening-home:not(.opening-home-reveal) .shelf-section,
+  .opening-home:not(.opening-home-reveal) .map-status,
+  .site-footer.opening-home:not(.opening-home-reveal) {
+    transform: none;
   }
 }

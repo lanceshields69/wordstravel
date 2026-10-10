@@ -9,6 +9,7 @@ import {
 type Props = {
   journeys: Journey[];
   active: boolean;
+  blocked?: boolean;
   selectedWord: string | null;
   onOpen: (id: string) => void;
   onCredit: (image: IntroImage) => void;
@@ -17,6 +18,7 @@ type Props = {
 export default function WordCarousel({
   journeys,
   active,
+  blocked = false,
   selectedWord,
   onOpen,
   onCredit,
@@ -43,7 +45,7 @@ export default function WordCarousel({
     "(prefers-reduced-motion: reduce)",
   ).matches;
   const auto =
-    active && entranceComplete && !paused && !reducedMotion && !mobile;
+    active && !blocked && entranceComplete && !paused && !reducedMotion && !mobile;
 
   useEffect(() => {
     const query = window.matchMedia("(max-width: 700px)");
@@ -170,7 +172,8 @@ export default function WordCarousel({
     <section
       className={`shelf-section${active ? "" : " is-hidden"}`}
       aria-label="Choose a word"
-      aria-hidden={!active}
+      aria-hidden={!active || blocked}
+      inert={blocked}
     >
       <div
         className="shelf-viewport"

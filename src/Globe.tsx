@@ -1,6 +1,13 @@
 import { useEffect, useRef, useState } from "react";
 import mapboxgl, { type Map as MapboxMap, type Marker } from "mapbox-gl";
-import type { Journey, Card } from "./content";
+import { journeys, type Journey, type Card } from "./content";
+import {
+  OPENING_ROUTE_DRAW_MS,
+  OPENING_ROUTE_STAGGER_MS,
+  openingRouteData,
+  tracedOpeningLines,
+  type OpeningStage,
+} from "./opening";
 import {
   angularDistance,
   markerGroups,
@@ -15,8 +22,61 @@ type Props = {
   onSelectCard: (id: string) => void;
   recenterKey: number;
   onStatus: (status: "ready" | "missing" | "error" | "loading") => void;
+  introStage: OpeningStage;
 };
 const token = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN;
+const openingRoutes = openingRouteData(journeys);
+const introLineLayer = "opening-route-dots";
+const introPointLayer = "opening-route-endpoints";
+
+function removeOpeningLayers(map: MapboxMap) {
+  if (map.getLayer(introPointLayer)) map.removeLayer(introPointLayer);
+  if (map.getLayer(introLineLayer)) map.removeLayer(introLineLayer);
+  if (map.getSource("opening-points")) map.removeSource("opening-points");
+  if (map.getSource("opening-lines")) map.removeSource("opening-lines");
+}
+
+function setOpeningRouteOpacity(map: MapboxMap, opacity: number) {
+  if (map.getLayer(introLineLayer))
+    map.setPaintProperty(introLineLayer, "line-opacity", opacity);
+  if (map.getLayer(introPointLayer))
+    map.setPaintProperty(introPointLayer, "circle-opacity", opacity);
+}
+
+function installOpeningLayers(map: MapboxMap) {
+  if (!map.getSource("opening-lines"))
+    map.addSource("opening-lines", {
+      type: "geojson",
+      data: { type: "FeatureCollection", features: [] },
+    });
+  if (!map.getSource("opening-points"))
+    map.addSource("opening-points", { type: "geojson", data: openingRoutes.points });
+  if (!map.getLayer(introLineLayer)) map.addLayer({
+      id: introLineLayer,
+      type: "line",
+      source: "opening-lines",
+      layout: { "line-cap": "round" },
+      paint: {
+        "line-color": "#e67a48",
+        "line-width": 2.8,
+        "line-dasharray": [0.65, 2.2],
+        "line-opacity": 1,
+        "line-opacity-transition": { duration: 500 },
+      },
+    });
+  if (!map.getLayer(introPointLayer))
+    map.addLayer({
+      id: introPointLayer,
+      type: "circle",
+      source: "opening-points",
+      paint: {
+        "circle-color": "#e67a48",
+        "circle-radius": 3.7,
+        "circle-opacity": 1,
+        "circle-opacity-transition": { duration: 500 },
+      },
+    });
+}
 
 function focusZoom(mobile: boolean) {
   const tenPercentLarger = Math.log2(1.1);
@@ -46,6 +106,8 @@ function configureStyle(map: MapboxMap) {
   const layers = map.getStyle().layers ?? [];
   for (const layer of layers) {
     const id = layer.id.toLowerCase();
+    if (id.startsWith("atlas-graticule") || id.startsWith("route-") || id.startsWith("opening-"))
+      continue;
     if (layer.type === "background") {
       map.setPaintProperty(layer.id, "background-color", "#d7d9ca");
     } else if (layer.type === "fill" && /water|ocean|sea/.test(id)) {
@@ -138,9 +200,12 @@ export default function Globe({
   onSelectCard,
   recenterKey,
   onStatus,
+  introStage,
 }: Props) {
   const container = useRef<HTMLDivElement>(null);
   const mapRef = useRef<MapboxMap | null>(null);
+  const introRouteFrame = useRef<number | null>(null);
+  const introRouteStart = useRef<number | null>(null);
   const markersRef = useRef<Marker[]>([]);
   const popupRef = useRef<mapboxgl.Popup | null>(null);
   const selectRef = useRef(onSelectCard);
@@ -222,6 +287,10 @@ export default function Globe({
     canvas.addEventListener("wheel", stopForUser, { passive: true });
     return () => {
       cancelled = true;
+      if (introRouteFrame.current !== null)
+        window.cancelAnimationFrame(introRouteFrame.current);
+      introRouteFrame.current = null;
+      introRouteStart.current = null;
       canvas.removeEventListener("pointerdown", stopForUser);
       canvas.removeEventListener("wheel", stopForUser);
       popupRef.current?.remove();
@@ -346,6 +415,67 @@ export default function Globe({
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !ready) return;
+    if (introStage === "globe" && !reduceMotion.current) {
+      map.stop();
+      map.easeTo({
+        center: [19, 27],
+        zoom: 1.78,
+        bearing: 8,
+        duration: 3200,
+        easing: (t) => 1 - Math.pow(1 - t, 3),
+        essential: true,
+      });
+    } else if (
+      introStage === "reveal" ||
+      introStage === "fallback" ||
+      introStage === "reduced"
+    ) {
+      map.stop();
+    }
+  }, [introStage, ready]);
+
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !ready) return;
+    const visible = ["globe", "mark", "wordmark", "hold"].includes(introStage);
+    if (visible) {
+      installOpeningLayers(map);
+      setOpeningRouteOpacity(map, 1);
+      if (
+        introStage === "globe" &&
+        introRouteStart.current === null &&
+        introRouteFrame.current === null
+      ) {
+        let lastUpdate = -Infinity;
+        const trace = (time: number) => {
+          if (introRouteStart.current === null) introRouteStart.current = time;
+          const elapsed = time - introRouteStart.current;
+          const duration = (openingRoutes.lines.features.length - 1) *
+            OPENING_ROUTE_STAGGER_MS + OPENING_ROUTE_DRAW_MS;
+          if (elapsed - lastUpdate >= 32 || elapsed >= duration) {
+            const source = map.getSource("opening-lines") as mapboxgl.GeoJSONSource | undefined;
+            source?.setData(tracedOpeningLines(openingRoutes.lines, elapsed));
+            lastUpdate = elapsed;
+          }
+          if (elapsed < duration)
+            introRouteFrame.current = window.requestAnimationFrame(trace);
+          else introRouteFrame.current = null;
+        };
+        introRouteFrame.current = window.requestAnimationFrame(trace);
+      }
+    } else {
+      if (introRouteFrame.current !== null)
+        window.cancelAnimationFrame(introRouteFrame.current);
+      introRouteFrame.current = null;
+      introRouteStart.current = null;
+      if (introStage === "reveal") setOpeningRouteOpacity(map, 0);
+      else removeOpeningLayers(map);
+    }
+  }, [introStage, ready]);
+
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !ready) return;
     const resize = () => {
       map.resize();
       if (mode !== "journey" || !activeCard) return;
@@ -363,7 +493,7 @@ export default function Globe({
 
   useEffect(() => {
     const map = mapRef.current;
-    if (!map || !ready || mode !== "browse" || reduceMotion.current) return;
+    if (!map || !ready || mode !== "browse" || reduceMotion.current || introStage !== "complete") return;
     userInteracted.current = false;
     const drift = () => {
       if (document.hidden || userInteracted.current || map.isMoving()) return;
@@ -376,7 +506,7 @@ export default function Globe({
     };
     const timer = window.setInterval(drift, 1900);
     return () => window.clearInterval(timer);
-  }, [ready, mode]);
+  }, [ready, mode, introStage]);
 
   return (
     <div
@@ -384,7 +514,7 @@ export default function Globe({
       aria-hidden={mode === "browse" ? "true" : undefined}
     >
       <div ref={container} className="map-container" />
-      <div className={`globe-veil ${mode === "browse" ? "is-dim" : ""}`} />
+      <div className={`globe-veil ${mode === "browse" ? "is-dim" : ""}${["globe", "mark", "wordmark", "hold"].includes(introStage) ? " is-intro" : ""}`} />
     </div>
   );
 }
