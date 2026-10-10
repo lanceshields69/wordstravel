@@ -346,7 +346,7 @@ export default function App() {
         <div className="site-footer-inner">
           <img
             className="footer-wordmark"
-            src="/images/footer-logo.svg"
+            src="/images/logo.svg"
             alt="Words Travel"
           />
           <a

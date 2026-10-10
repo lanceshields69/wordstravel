@@ -1727,8 +1727,8 @@ body::-webkit-scrollbar {
 }
 .footer-wordmark {
   display: block;
-  width: 192.381px;
-  height: 26.9996px;
+  width: 120px;
+  height: auto;
 }
 .footer-byline {
   display: inline-flex;
