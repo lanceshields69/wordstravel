@@ -31,7 +31,9 @@ function ScriptWord({ card }: { card: Card }) {
 function PronunciationButton({ card }: { card: Card }) {
   const generation = card.pronunciation.generation;
   const language = generation.language;
-  const hasAudio = Boolean(generation.audio_url);
+  const hasAudio = Boolean(
+    generation.audio_url && (language || generation.owner_approved_audio),
+  );
   const speechSupported =
     typeof window !== "undefined" && "speechSynthesis" in window;
   const [voices, setVoices] = useState<SpeechSynthesisVoice[]>([]);
@@ -76,7 +78,7 @@ function PronunciationButton({ card }: { card: Card }) {
     () => matchingVoice(voices, language),
     [language, voices],
   );
-  const reason = !language
+  const reason = !language && !hasAudio
     ? "Reading awaits review."
     : hasAudio
       ? null
@@ -92,7 +94,7 @@ function PronunciationButton({ card }: { card: Card }) {
         type="button"
         className="pronunciation-button"
         onClick={() => {
-          if (!language) {
+          if (!language && !hasAudio) {
             setMessage("Reading awaits review.");
             return;
           }
@@ -128,10 +130,12 @@ function PronunciationButton({ card }: { card: Card }) {
             ? `Pronunciation unavailable for ${card.spelling}. ${reason}`
             : checking && !hasAudio
               ? "Checking pronunciation availability"
-              : `Play modern illustrative pronunciation of ${generation.text}${voice ? ` using ${voice.lang}` : ""}`
+              : hasAudio
+                ? `Play recorded pronunciation of ${generation.text}. ${generation.label}`
+                : `Play modern illustrative pronunciation of ${generation.text}${voice ? ` using ${voice.lang}` : ""}`
         }
         aria-expanded={reason ? Boolean(message) : undefined}
-        title={reason ?? (voice ? `Hear a modern reading (${voice.lang} voice)` : "Hear a reading")}
+        title={reason ?? (hasAudio ? generation.label : voice ? `Hear a modern reading (${voice.lang} voice)` : "Hear a reading")}
       >
         <img src="/icons/pronunciation.svg" alt="" aria-hidden="true" />
       </button>

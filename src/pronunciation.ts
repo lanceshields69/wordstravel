@@ -60,7 +60,9 @@ export const browserPronunciation: PronunciationService = {
     this.stop();
     const id = playbackId;
     const generation = card.pronunciation.generation;
-    if (!generation.language) {
+    // Historical cards cannot use browser TTS. A content-owner-approved file
+    // is the only explicit exception; a stray audio URL cannot lift a hold.
+    if (!generation.language && !(generation.audio_url && generation.owner_approved_audio)) {
       onError("Reading awaits review.");
       return;
     }

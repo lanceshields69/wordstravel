@@ -8043,12 +8043,13 @@
             "generation": {
               "language": null,
               "text": "τυφών",
-              "label": "Specialist reading required; generation pending",
+              "label": "Owner-approved Ancient Greek recording; historical source details pending",
               "prompt": "Read only 'τυφών' in Ancient Greek. No introduction. This is an illustrative reading, not a historical reconstruction.",
-              "status": "not_generated",
-              "audio_url": null,
-              "review_required": true,
-              "provider": "not selected"
+              "status": "user_recorded",
+              "audio_url": "/audio/typhoon/typhoon-ancient-greek.mp3",
+              "owner_approved_audio": true,
+              "review_required": false,
+              "provider": "user recording"
             }
           },
           "visual": {
@@ -8144,12 +8145,12 @@
             "generation": {
               "language": "ar",
               "text": "طوفان",
-              "label": "Generated modern pronunciation; review pending",
+              "label": "User-recorded modern Arabic reading; listening review pending",
               "prompt": "Read only 'طوفان' in ar. No introduction. This is an illustrative reading, not a historical reconstruction.",
-              "status": "not_generated",
-              "audio_url": null,
+              "status": "user_recorded",
+              "audio_url": "/audio/typhoon/typhoon-arabic.mp3",
               "review_required": true,
-              "provider": "not selected"
+              "provider": "user recording"
             }
           },
           "visual": {
@@ -8245,12 +8246,12 @@
             "generation": {
               "language": "hi-IN",
               "text": "तूफ़ान",
-              "label": "Generated modern pronunciation; review pending",
+              "label": "User-recorded Hindi reading of तूफ़ान; separate Urdu reading unavailable",
               "prompt": "Read only 'तूफ़ान' in hi-IN. No introduction. This is an illustrative reading, not a historical reconstruction.",
-              "status": "not_generated",
-              "audio_url": null,
+              "status": "user_recorded",
+              "audio_url": "/audio/typhoon/typhoon-hindi.mp3",
               "review_required": true,
-              "provider": "not selected"
+              "provider": "user recording"
             }
           },
           "visual": {
@@ -8346,12 +8347,12 @@
             "generation": {
               "language": "pt-PT",
               "text": "tufão",
-              "label": "Generated modern pronunciation; review pending",
+              "label": "User-recorded modern Portuguese reading; listening review pending",
               "prompt": "Read only 'tufão' in pt-PT. No introduction. This is an illustrative reading, not a historical reconstruction.",
-              "status": "not_generated",
-              "audio_url": null,
+              "status": "user_recorded",
+              "audio_url": "/audio/typhoon/typhoon-portuguese.mp3",
               "review_required": true,
-              "provider": "not selected"
+              "provider": "user recording"
             }
           },
           "visual": {
@@ -8447,12 +8448,12 @@
             "generation": {
               "language": "yue",
               "text": "大風",
-              "label": "Generated modern-language reading of historical form; not a reconstruction",
+              "label": "User-recorded Cantonese comparison; content and listening review pending",
               "prompt": "Read only '大風' in yue. No introduction. This is an illustrative reading, not a historical reconstruction.",
-              "status": "not_generated",
-              "audio_url": null,
+              "status": "user_recorded",
+              "audio_url": "/audio/typhoon/typhoon-cantonese.mp3",
               "review_required": true,
-              "provider": "not selected"
+              "provider": "user recording"
             }
           },
           "visual": {
@@ -8548,12 +8549,12 @@
             "generation": {
               "language": "en-GB",
               "text": "typhoon",
-              "label": "Generated modern British English pronunciation",
+              "label": "User-recorded modern British English reading; listening review pending",
               "prompt": "Read only 'typhoon' in en-GB. No introduction. This is an illustrative reading, not a historical reconstruction.",
-              "status": "not_generated",
-              "audio_url": null,
+              "status": "user_recorded",
+              "audio_url": "/audio/typhoon/typhoon-english-uk.mp3",
               "review_required": true,
-              "provider": "not selected"
+              "provider": "user recording"
             }
           },
           "visual": {

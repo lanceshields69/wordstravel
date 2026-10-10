@@ -45,6 +45,7 @@ export type Card = {
       text: string;
       label: string;
       audio_url: string | null;
+      owner_approved_audio?: boolean;
     };
   };
   visual: { image_url: string | null; alt_text?: string; status: string };

@@ -41,6 +41,31 @@ describe("pronunciation playback", () => {
     expect(error).toHaveBeenCalledWith("Reading awaits review.");
   });
 
+  it("plays an owner-approved historical recording without enabling historical browser speech", async () => {
+    const greek = card("typhoon-greek");
+    expect(greek.pronunciation.generation.language).toBeNull();
+    expect(greek.pronunciation.generation.owner_approved_audio).toBe(true);
+    class AudioMock {
+      onplaying: (() => void) | null = null;
+      onended: (() => void) | null = null;
+      onerror: (() => void) | null = null;
+      pause = vi.fn();
+      play = vi.fn(async () => {
+        this.onplaying?.();
+        this.onended?.();
+      });
+      constructor(public src: string) {}
+    }
+    vi.stubGlobal("window", { setTimeout, clearTimeout });
+    vi.stubGlobal("Audio", AudioMock);
+    const end = vi.fn();
+    const error = vi.fn();
+    browserPronunciation.speak(greek, null, end, error);
+    await Promise.resolve();
+    expect(end).toHaveBeenCalledOnce();
+    expect(error).not.toHaveBeenCalled();
+  });
+
   it("reports a listed voice that never starts instead of hanging silently", () => {
     vi.useFakeTimers();
     const selectedVoice = voice("ar-SA");
