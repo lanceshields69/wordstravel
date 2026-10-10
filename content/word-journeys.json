@@ -1198,7 +1198,7 @@
               "label": "Owner-approved Medieval Latin recording; historical source details pending",
               "prompt": "Read only 'succarum' in Medieval Latin. No introduction. This is an illustrative reading, not a historical reconstruction.",
               "status": "user_recorded",
-              "audio_url": "/audio/sugar/sugar-latin.mp3?v=60364028",
+              "audio_url": "/audio/sugar/sugar-latin.mp3?v=db2c6934",
               "owner_approved_audio": true,
               "review_required": false,
               "provider": "user recording"
@@ -1832,7 +1832,7 @@
               "label": "Owner-approved Latin recording; historical source details pending",
               "prompt": "Read only 'zingiberi' in Latin. No introduction. This is an illustrative reading, not a historical reconstruction.",
               "status": "user_recorded",
-              "audio_url": "/audio/ginger/ginger-latin.mp3?v=50eb3ce7",
+              "audio_url": "/audio/ginger/ginger-latin.mp3?v=b12cdc01",
               "owner_approved_audio": true,
               "review_required": false,
               "provider": "user recording"
@@ -2033,12 +2033,12 @@
             "generation": {
               "language": "fr-FR",
               "text": "gingibre",
-              "label": "Generated modern-language reading of historical form; not a reconstruction",
+              "label": "User-recorded French illustration of an Old French form; historical reading unverified",
               "prompt": "Read only 'gingibre' in fr-FR. No introduction. This is an illustrative reading, not a historical reconstruction.",
-              "status": "not_generated",
-              "audio_url": null,
+              "status": "user_recorded",
+              "audio_url": "/audio/ginger/ginger-old-french.mp3?v=f98d33bb",
               "review_required": true,
-              "provider": "not selected"
+              "provider": "user recording"
             }
           },
           "visual": {
