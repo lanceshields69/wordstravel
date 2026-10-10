@@ -789,12 +789,13 @@
             "generation": {
               "language": null,
               "text": "शर्करा",
-              "label": "Specialist reading required; generation pending",
+              "label": "Owner-approved Sanskrit recording; historical source details pending",
               "prompt": "Read only 'शर्करा' in Sanskrit. No introduction. This is an illustrative reading, not a historical reconstruction.",
-              "status": "not_generated",
-              "audio_url": null,
-              "review_required": true,
-              "provider": "not selected"
+              "status": "user_recorded",
+              "audio_url": "/audio/sugar/sugar-sanskrit.mp3?v=217caef8",
+              "owner_approved_audio": true,
+              "review_required": false,
+              "provider": "user recording"
             }
           },
           "visual": {
@@ -890,12 +891,12 @@
             "generation": {
               "language": "fa-IR",
               "text": "شکر",
-              "label": "Generated modern-language reading of historical form; not a reconstruction",
+              "label": "User-recorded modern Persian reading; historical reading unverified",
               "prompt": "Read only 'شکر' in fa-IR. No introduction. This is an illustrative reading, not a historical reconstruction.",
-              "status": "not_generated",
-              "audio_url": null,
+              "status": "user_recorded",
+              "audio_url": "/audio/sugar/sugar-persian.mp3?v=c842653a",
               "review_required": true,
-              "provider": "not selected"
+              "provider": "user recording"
             }
           },
           "visual": {
@@ -991,12 +992,12 @@
             "generation": {
               "language": "ar",
               "text": "سُكَّر",
-              "label": "Generated modern pronunciation; review pending",
+              "label": "User-recorded modern Arabic reading; listening review pending",
               "prompt": "Read only 'سُكَّر' in ar. No introduction. This is an illustrative reading, not a historical reconstruction.",
-              "status": "not_generated",
-              "audio_url": null,
+              "status": "user_recorded",
+              "audio_url": "/audio/sugar/sugar-arabic.mp3?v=8ffe1f6f",
               "review_required": true,
-              "provider": "not selected"
+              "provider": "user recording"
             }
           },
           "visual": {
@@ -1193,12 +1194,13 @@
             "generation": {
               "language": null,
               "text": "succarum",
-              "label": "Specialist reading required; generation pending",
+              "label": "Owner-approved Medieval Latin recording; historical source details pending",
               "prompt": "Read only 'succarum' in Medieval Latin. No introduction. This is an illustrative reading, not a historical reconstruction.",
-              "status": "not_generated",
-              "audio_url": null,
-              "review_required": true,
-              "provider": "not selected"
+              "status": "user_recorded",
+              "audio_url": "/audio/sugar/sugar-latin.mp3?v=60364028",
+              "owner_approved_audio": true,
+              "review_required": false,
+              "provider": "user recording"
             }
           },
           "visual": {

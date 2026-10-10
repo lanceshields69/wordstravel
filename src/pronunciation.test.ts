@@ -114,13 +114,21 @@ describe("pronunciation playback", () => {
     };
     vi.stubGlobal("window", { speechSynthesis: synth, setTimeout, clearTimeout });
     vi.stubGlobal("SpeechSynthesisUtterance", Utterance);
+    const recorded = card("sugar-arabic");
+    const browserCard: Card = {
+      ...recorded,
+      pronunciation: {
+        ...recorded.pronunciation,
+        generation: { ...recorded.pronunciation.generation, audio_url: null },
+      },
+    };
     const error = vi.fn();
-    browserPronunciation.speak(card("sugar-arabic"), selectedVoice, vi.fn(), error);
+    browserPronunciation.speak(browserCard, selectedVoice, vi.fn(), error);
     spoken!.onerror?.({ error: "voice-unavailable" });
     expect(error).toHaveBeenCalledWith(
       "The selected voice is unavailable on this device.",
     );
-    browserPronunciation.speak(card("sugar-arabic"), selectedVoice, vi.fn(), error);
+    browserPronunciation.speak(browserCard, selectedVoice, vi.fn(), error);
     const interrupted = spoken!;
     browserPronunciation.stop();
     interrupted.onerror?.({ error: "canceled" });
