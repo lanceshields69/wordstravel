@@ -350,7 +350,7 @@ export default function App() {
           onClick={browse}
           aria-label="Words Travel — explore words"
         >
-          <img src="/images/logo.svg" alt="" aria-hidden="true" />
+          <img src="/images/logo.svg?v=ced22d5e" alt="" aria-hidden="true" />
         </button>
         <div className="header-actions">
           {phase === "browse" ? (
@@ -514,7 +514,7 @@ export default function App() {
         <div className="site-footer-inner">
           <img
             className="footer-wordmark"
-            src="/images/logo.svg"
+            src="/images/logo.svg?v=ced22d5e"
             alt="Words Travel"
           />
           <a
