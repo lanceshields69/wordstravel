@@ -978,6 +978,16 @@ summary:focus-visible {
 .mapboxgl-ctrl-attrib {
   font-family: "DM Sans", sans-serif !important;
 }
+.phase-browse .mapboxgl-ctrl-attrib.mapboxgl-compact .mapboxgl-ctrl-attrib-button,
+.phase-browse .mapboxgl-ctrl-attrib.mapboxgl-compact .mapboxgl-ctrl-attrib-button:not(:disabled):hover {
+  background-color: transparent;
+}
+.phase-browse .mapboxgl-ctrl-attrib.mapboxgl-compact:not(.mapboxgl-compact-show) {
+  background-color: transparent;
+}
+.phase-browse .mapboxgl-ctrl-attrib.mapboxgl-compact:not(.mapboxgl-compact-show) .mapboxgl-ctrl-attrib-button {
+  filter: invert(1);
+}
 .phase-journey .mapboxgl-ctrl-attrib a {
   color: #263a40;
 }
