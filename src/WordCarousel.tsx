@@ -147,7 +147,7 @@ export default function WordCarousel({
               <span className="intro-word">{journey.current_english_word}</span>
               <span className="intro-hook">{journey.hook}</span>
               <span className="intro-invite">
-                Begin journey <span aria-hidden="true">←</span>
+                Begin journey <span aria-hidden="true">→</span>
               </span>
             </span>
           </button>
