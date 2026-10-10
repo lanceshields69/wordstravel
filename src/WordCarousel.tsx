@@ -152,11 +152,12 @@ export default function WordCarousel({
             </span>
           </button>
           <button
-            className="credit-trigger"
+            className="image-credit-trigger home-image-credit-trigger"
             type="button"
             tabIndex={clone ? -1 : 0}
             onClick={() => onCredit(image)}
             aria-label={`Image credit for ${journey.current_english_word}`}
+            aria-haspopup="dialog"
           >
             Image credit
           </button>

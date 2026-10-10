@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { Card, Journey } from "./content";
 import { browserPronunciation, matchingVoice } from "./pronunciation";
+import ChapterImage from "./ChapterImage";
+import { imageByCardId } from "./chapterImages";
 
 type Props = {
   journey: Journey;
@@ -262,6 +264,8 @@ export default function JourneyCard({
   );
   const chapterNumber = String(index + 1).padStart(2, "0");
   const isLastChapter = index === journey.cards.length - 1;
+  const chapterImage = imageByCardId.get(card.id);
+  if (!chapterImage) throw new Error(`Missing chapter image for ${card.id}`);
 
   useEffect(() => {
     if (currentPresentation.detailsVisible) return;
@@ -366,9 +370,7 @@ export default function JourneyCard({
               <span>{card.meaning.charAt(0).toUpperCase() + card.meaning.slice(1)}</span>
             </div>
             <div className="journey-card-feature">
-              <div className="journey-card-illustration" aria-hidden="true">
-                <span>{card.spelling.charAt(0).toUpperCase()}</span>
-              </div>
+              <ChapterImage key={card.id} image={chapterImage} />
               <div className="journey-card-feature-copy">
                 <p className="journey-chapter-label">Chapter {chapterNumber}</p>
                 <h3>{card.title}</h3>
