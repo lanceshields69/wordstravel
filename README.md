@@ -2,6 +2,8 @@
 
 **Every word has a journey.** A local, front-end atlas for twelve familiar English words. Select an image card, then follow its sourced chapters through a live globe or the chapter list.
 
+Planned production URL: [wordstravel.app](https://wordstravel.app/).
+
 ## Run locally
 
 Requires Node.js 22 or newer. Install and start the app:
