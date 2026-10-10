@@ -996,7 +996,7 @@
               "label": "User-recorded modern Arabic reading; listening review pending",
               "prompt": "Read only 'سُكَّر' in ar. No introduction. This is an illustrative reading, not a historical reconstruction.",
               "status": "user_recorded",
-              "audio_url": "/audio/sugar/sugar-arabic.mp3?v=9176175d",
+              "audio_url": "/audio/sugar/sugar-arabic.mp3?v=aa9ec5cd",
               "review_required": true,
               "provider": "user recording"
             }
