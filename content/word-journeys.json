@@ -66,12 +66,13 @@
             "generation": {
               "language": null,
               "text": "नारङ्ग",
-              "label": "Specialist reading required; generation pending",
+              "label": "Owner-approved Sanskrit recording; historical source details pending",
               "prompt": "Read only 'नारङ्ग' in Sanskrit. No introduction. This is an illustrative reading, not a historical reconstruction.",
-              "status": "not_generated",
-              "audio_url": null,
-              "review_required": true,
-              "provider": "not selected"
+              "status": "user_recorded",
+              "audio_url": "/audio/orange/orange-sanskrit.mp3?v=8433af9c",
+              "owner_approved_audio": true,
+              "review_required": false,
+              "provider": "user recording"
             }
           },
           "visual": {
@@ -167,12 +168,12 @@
             "generation": {
               "language": "fa-IR",
               "text": "نارنگ",
-              "label": "Generated modern-language reading of historical form; not a reconstruction",
+              "label": "User-recorded modern Persian reading; historical reading unverified",
               "prompt": "Read only 'نارنگ' in fa-IR. No introduction. This is an illustrative reading, not a historical reconstruction.",
-              "status": "not_generated",
-              "audio_url": null,
+              "status": "user_recorded",
+              "audio_url": "/audio/orange/orange-persian.mp3?v=e93f2180",
               "review_required": true,
-              "provider": "not selected"
+              "provider": "user recording"
             }
           },
           "visual": {
@@ -268,12 +269,12 @@
             "generation": {
               "language": "ar",
               "text": "نارنج",
-              "label": "Generated modern pronunciation; review pending",
+              "label": "User-recorded modern Arabic reading; independent listening review pending",
               "prompt": "Read only 'نارنج' in ar. No introduction. This is an illustrative reading, not a historical reconstruction.",
-              "status": "not_generated",
-              "audio_url": null,
+              "status": "user_recorded",
+              "audio_url": "/audio/orange/orange-arabic.mp3?v=adf5333e",
               "review_required": true,
-              "provider": "not selected"
+              "provider": "user recording"
             }
           },
           "visual": {
@@ -369,12 +370,12 @@
             "generation": {
               "language": "it-IT",
               "text": "arancia",
-              "label": "Generated modern pronunciation; review pending",
+              "label": "User-recorded modern Italian reading; independent listening review pending",
               "prompt": "Read only 'arancia' in it-IT. No introduction. This is an illustrative reading, not a historical reconstruction.",
-              "status": "not_generated",
-              "audio_url": null,
+              "status": "user_recorded",
+              "audio_url": "/audio/orange/orange-italian.mp3?v=e580f534",
               "review_required": true,
-              "provider": "not selected"
+              "provider": "user recording"
             }
           },
           "visual": {
