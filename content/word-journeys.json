@@ -2475,12 +2475,13 @@
             "generation": {
               "language": null,
               "text": "praecoquum",
-              "label": "Specialist reading required; generation pending",
+              "label": "Owner-approved Latin recording; historical source details pending",
               "prompt": "Read only 'praecoquum' in Latin. No introduction. This is an illustrative reading, not a historical reconstruction.",
-              "status": "not_generated",
-              "audio_url": null,
-              "review_required": true,
-              "provider": "not selected"
+              "status": "user_recorded",
+              "audio_url": "/audio/apricot/apricot-latin.mp3?v=887aae70",
+              "owner_approved_audio": true,
+              "review_required": false,
+              "provider": "user recording"
             }
           },
           "visual": {
@@ -2576,12 +2577,13 @@
             "generation": {
               "language": null,
               "text": "berikokkia",
-              "label": "Specialist reading required; generation pending",
+              "label": "Owner-approved Byzantine Greek recording; historical source details pending",
               "prompt": "Read only 'berikokkia' in Byzantine Greek. No introduction. This is an illustrative reading, not a historical reconstruction.",
-              "status": "not_generated",
-              "audio_url": null,
-              "review_required": true,
-              "provider": "not selected"
+              "status": "user_recorded",
+              "audio_url": "/audio/apricot/apricot-greek.mp3?v=20589444",
+              "owner_approved_audio": true,
+              "review_required": false,
+              "provider": "user recording"
             }
           },
           "visual": {
@@ -3795,12 +3797,12 @@
             "generation": {
               "language": "fa-IR",
               "text": "شاه",
-              "label": "Generated modern pronunciation; review pending",
+              "label": "User-recorded modern Persian reading; historical reading unverified",
               "prompt": "Read only 'شاه' in fa-IR. No introduction. This is an illustrative reading, not a historical reconstruction.",
-              "status": "not_generated",
-              "audio_url": null,
+              "status": "user_recorded",
+              "audio_url": "/audio/check/check-persian.mp3?v=679b25a3",
               "review_required": true,
-              "provider": "not selected"
+              "provider": "user recording"
             }
           },
           "visual": {

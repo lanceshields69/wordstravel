@@ -32,7 +32,7 @@ function ScriptWord({ card }: { card: Card }) {
     <h2
       id="story-heading"
       tabIndex={-1}
-      className={`local-word${arabic ? " arabic" : ""}${devanagari ? " devanagari" : ""}`}
+      className={`local-word${arabic ? " arabic" : ""}${devanagari ? " devanagari" : ""}${card.id === "apricot-latin" ? " is-compact" : ""}`}
       lang={arabic ? "ar" : devanagari ? "sa" : chinese ? "zh" : undefined}
       dir={arabic ? "rtl" : undefined}
     >

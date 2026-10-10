@@ -1501,6 +1501,9 @@ body::-webkit-scrollbar {
   font: 400 61px/0.96 "Newsreader", serif;
   letter-spacing: -0.045em;
 }
+.journey-card-word-row .local-word.is-compact {
+  font-size: 52px;
+}
 .journey-card-word-row .local-word.arabic {
   font: 400 48px/1.15 "Noto Sans Arabic", sans-serif;
   letter-spacing: 0;
@@ -2070,6 +2073,9 @@ body::-webkit-scrollbar {
   }
   .journey-card-word-row .local-word {
     font-size: clamp(42px, 10vw, 61px);
+  }
+  .journey-card-word-row .local-word.is-compact {
+    font-size: clamp(42px, 13.5vw, 52px);
   }
   .journey-card-feature {
     grid-template-columns: 70px minmax(0, 1fr);
