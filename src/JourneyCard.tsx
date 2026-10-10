@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import type { Card, Journey } from "./content";
-import { browserPronunciation } from "./pronunciation";
+import { browserPronunciation, matchingVoice } from "./pronunciation";
 
 type Props = {
   journey: Journey;
@@ -29,13 +29,20 @@ function ScriptWord({ card }: { card: Card }) {
 }
 
 function PronunciationButton({ card }: { card: Card }) {
+  const generation = card.pronunciation.generation;
+  const language = generation.language;
+  const hasAudio = Boolean(generation.audio_url);
+  const speechSupported =
+    typeof window !== "undefined" && "speechSynthesis" in window;
   const [voices, setVoices] = useState<SpeechSynthesisVoice[]>([]);
-  const [state, setState] = useState<"idle" | "playing" | "error">("idle");
-  const [checking, setChecking] = useState(true);
-  const [showReason, setShowReason] = useState(false);
+  const [checking, setChecking] = useState(Boolean(language) && !hasAudio);
+  const [message, setMessage] = useState<string | null>(null);
+
+  useEffect(() => () => browserPronunciation.stop(), []);
 
   useEffect(() => {
-    if (typeof speechSynthesis === "undefined") {
+    if (!language || hasAudio) return;
+    if (!speechSupported) {
       const timer = setTimeout(() => setChecking(false), 0);
       return () => clearTimeout(timer);
     }
@@ -43,34 +50,41 @@ function PronunciationButton({ card }: { card: Card }) {
       const available = browserPronunciation.voices();
       setVoices(available);
       if (available.length) setChecking(false);
+      if (matchingVoice(available, language))
+        setMessage((current) =>
+          current?.startsWith("No ") || current?.startsWith("Still checking")
+            ? null
+            : current,
+        );
     };
-    refresh();
-    const timer = window.setTimeout(() => setChecking(false), 900);
     window.speechSynthesis.addEventListener("voiceschanged", refresh);
+    refresh();
+    // Some browsers populate getVoices() late without firing voiceschanged.
+    const poll = window.setInterval(refresh, 250);
+    const timer = window.setTimeout(() => {
+      setChecking(false);
+      window.clearInterval(poll);
+    }, 3000);
     return () => {
       window.clearTimeout(timer);
+      window.clearInterval(poll);
       window.speechSynthesis.removeEventListener("voiceschanged", refresh);
-      browserPronunciation.stop();
     };
-  }, [card.id]);
+  }, [language, hasAudio, speechSupported]);
 
-  const language = card.pronunciation.generation.language;
   const voice = useMemo(
-    () =>
-      language
-        ? (voices.find((v) => v.lang.toLowerCase() === language.toLowerCase()) ??
-          voices.find(
-            (v) =>
-              v.lang.toLowerCase().split("-")[0] ===
-              language.toLowerCase().split("-")[0],
-          ))
-        : null,
+    () => matchingVoice(voices, language),
     [language, voices],
   );
-  const unavailable = !checking && (!language || !voice);
   const reason = !language
     ? "Reading awaits review."
-    : "No matching voice on this device.";
+    : hasAudio
+      ? null
+      : !speechSupported
+        ? "This browser does not support speech playback."
+        : !checking && !voice
+          ? `No ${language} voice is available on this device.`
+          : null;
 
   return (
     <div className="pronunciation-wrap">
@@ -78,34 +92,52 @@ function PronunciationButton({ card }: { card: Card }) {
         type="button"
         className="pronunciation-button"
         onClick={() => {
-          if (unavailable) {
-            setShowReason((current) => !current);
+          if (!language) {
+            setMessage("Reading awaits review.");
             return;
           }
-          if (!voice) return;
-          setState("playing");
+          if (!hasAudio && !speechSupported) {
+            setMessage("This browser does not support speech playback.");
+            return;
+          }
+          // Recheck at click time: a voice may appear or disappear after loading.
+          const currentVoice = hasAudio
+            ? null
+            : browserPronunciation.voiceFor(language);
+          if (!hasAudio && !currentVoice) {
+            setVoices(browserPronunciation.voices());
+            setMessage(
+              checking
+                ? "Still checking for a matching voice on this device."
+                : `No ${language} voice is available on this device.`,
+            );
+            return;
+          }
+          setChecking(false);
+          if (!hasAudio) setVoices(browserPronunciation.voices());
+          setMessage(null);
           browserPronunciation.speak(
             card,
-            voice,
-            () => setState("idle"),
-            () => setState("error"),
+            currentVoice,
+            () => setMessage(null),
+            setMessage,
           );
         }}
         aria-label={
-          unavailable
+          reason
             ? `Pronunciation unavailable for ${card.spelling}. ${reason}`
-            : checking && !voice
+            : checking && !hasAudio
               ? "Checking pronunciation availability"
-              : `Play modern illustrative pronunciation of ${card.pronunciation.generation.text}`
+              : `Play modern illustrative pronunciation of ${generation.text}${voice ? ` using ${voice.lang}` : ""}`
         }
-        aria-expanded={unavailable ? showReason : undefined}
-        title={unavailable ? `Pronunciation not available yet. ${reason}` : "Hear a reading"}
+        aria-expanded={reason ? Boolean(message) : undefined}
+        title={reason ?? (voice ? `Hear a modern reading (${voice.lang} voice)` : "Hear a reading")}
       >
         <img src="/icons/pronunciation.svg" alt="" aria-hidden="true" />
       </button>
-      {(showReason || state === "error") && (
+      {message && (
         <span className="pronunciation-note" role="status">
-          {state === "error" ? "Could not play this reading." : `Pronunciation not available yet. ${reason}`}
+          {message}
         </span>
       )}
     </div>
@@ -158,7 +190,7 @@ export default function JourneyCard({
             </div>
             <div className="journey-card-word-row">
               <ScriptWord card={card} />
-              <PronunciationButton card={card} />
+              <PronunciationButton key={card.id} card={card} />
             </div>
             <div className="journey-card-subline">
               <span className="journey-language">{card.language}</span>
