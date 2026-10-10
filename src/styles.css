@@ -185,6 +185,18 @@ summary:focus-visible {
   width: max-content;
   padding: 30px max(28px, calc((100vw - 1250px) / 2)) 34px;
 }
+.shelf-track.is-entering {
+  animation: shelf-arrive 1.6s cubic-bezier(0.18, 0.72, 0.22, 1) both;
+  will-change: transform;
+}
+@keyframes shelf-arrive {
+  from {
+    transform: translateX(100vw);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
 .shelf-track > div,
 .shelf-clones {
   display: flex;
@@ -1655,7 +1667,7 @@ body::-webkit-scrollbar {
   padding: 32px clamp(28px, 5.21vw, 100px) 0;
 }
 .phase-browse .browse-content {
-  margin-top: 98px;
+  margin-top: 80px;
 }
 .hero-copy {
   position: relative;
@@ -1686,7 +1698,7 @@ body::-webkit-scrollbar {
   white-space: nowrap;
 }
 .phase-browse .shelf-section {
-  padding-top: 50px;
+  padding-top: 30px;
 }
 .site-footer {
   position: relative;

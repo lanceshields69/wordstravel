@@ -33,13 +33,17 @@ export default function WordCarousel({
   const pausedByGesture = useRef(false);
   const [paused, setPaused] = useState(false);
   const [index, setIndex] = useState(0);
+  const [entranceComplete, setEntranceComplete] = useState(
+    window.matchMedia("(prefers-reduced-motion: reduce)").matches,
+  );
   const [mobile, setMobile] = useState(
     window.matchMedia("(max-width: 700px)").matches,
   );
   const reducedMotion = window.matchMedia(
     "(prefers-reduced-motion: reduce)",
   ).matches;
-  const auto = active && !paused && !reducedMotion && !mobile;
+  const auto =
+    active && entranceComplete && !paused && !reducedMotion && !mobile;
 
   useEffect(() => {
     const query = window.matchMedia("(max-width: 700px)");
@@ -93,7 +97,7 @@ export default function WordCarousel({
       const delta = Math.min(now - last, 50);
       last = now;
       if (!pausedByGesture.current && !document.hidden) {
-        position += delta * 0.012;
+        position += delta * 0.018;
         const loop = itemWidth() * displayJourneys.length;
         if (position >= loop) position -= loop;
         el.scrollLeft = position;
@@ -196,7 +200,14 @@ export default function WordCarousel({
           pausedByGesture.current = false;
         }}
       >
-        <div className="shelf-track">
+        <div
+          className={`shelf-track${entranceComplete ? "" : " is-entering"}`}
+          onAnimationEnd={(event) => {
+            if (event.animationName !== "shelf-arrive") return;
+            setEntranceComplete(true);
+            updateScale();
+          }}
+        >
           {displayJourneys.map((j) => (
             <div
               key={j.id}
