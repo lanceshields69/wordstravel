@@ -4520,12 +4520,13 @@
             "generation": {
               "language": null,
               "text": "pairidaeza",
-              "label": "Specialist reading required; generation pending",
+              "label": "Owner-approved Iranian/Avestan comparison recording; historical source details pending",
               "prompt": "Read only 'pairidaeza' in Iranian / Avestan comparison. No introduction. This is an illustrative reading, not a historical reconstruction.",
-              "status": "not_generated",
-              "audio_url": null,
-              "review_required": true,
-              "provider": "not selected"
+              "status": "user_recorded",
+              "audio_url": "/audio/paradise/paradise-iranian.mp3?v=82973c7d",
+              "owner_approved_audio": true,
+              "review_required": false,
+              "provider": "user recording"
             }
           },
           "visual": {
@@ -4621,12 +4622,13 @@
             "generation": {
               "language": null,
               "text": "παράδεισος",
-              "label": "Specialist reading required; generation pending",
+              "label": "Owner-approved Ancient Greek recording; historical source details pending",
               "prompt": "Read only 'παράδεισος' in Ancient Greek. No introduction. This is an illustrative reading, not a historical reconstruction.",
-              "status": "not_generated",
-              "audio_url": null,
-              "review_required": true,
-              "provider": "not selected"
+              "status": "user_recorded",
+              "audio_url": "/audio/paradise/paradise-greek.mp3?v=dea9330a",
+              "owner_approved_audio": true,
+              "review_required": false,
+              "provider": "user recording"
             }
           },
           "visual": {
@@ -4722,12 +4724,13 @@
             "generation": {
               "language": null,
               "text": "paradisus",
-              "label": "Specialist reading required; generation pending",
+              "label": "Owner-approved Latin recording; historical source details pending",
               "prompt": "Read only 'paradisus' in Latin. No introduction. This is an illustrative reading, not a historical reconstruction.",
-              "status": "not_generated",
-              "audio_url": null,
-              "review_required": true,
-              "provider": "not selected"
+              "status": "user_recorded",
+              "audio_url": "/audio/paradise/paradise-latin.mp3?v=d16e227e",
+              "owner_approved_audio": true,
+              "review_required": false,
+              "provider": "user recording"
             }
           },
           "visual": {
@@ -4823,12 +4826,12 @@
             "generation": {
               "language": "fr-FR",
               "text": "paradis",
-              "label": "Generated modern-language reading of historical form; not a reconstruction",
+              "label": "User-recorded modern French reading of historical form; not a reconstruction",
               "prompt": "Read only 'paradis' in fr-FR. No introduction. This is an illustrative reading, not a historical reconstruction.",
-              "status": "not_generated",
-              "audio_url": null,
+              "status": "user_recorded",
+              "audio_url": "/audio/paradise/paradise-french.mp3?v=e1b6daaf",
               "review_required": true,
-              "provider": "not selected"
+              "provider": "user recording"
             }
           },
           "visual": {
