@@ -463,10 +463,6 @@ summary:focus-visible {
   font-weight: 600;
   min-height: 40px;
 }
-.pronunciation-button span {
-  font-size: 14px;
-  margin-right: 4px;
-}
 .pronunciation-unavailable {
   display: inline-block;
   color: #66736d;
